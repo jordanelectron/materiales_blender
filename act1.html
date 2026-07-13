@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividad: Recorrido por el Shading</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Paleta de Colores de la Marca */
+            --sienna: #D2691E;       
+            --charcoal: #1C1E21;     
+            --azul: #1F3B6A;         
+            --azul-header: #15294a;  /* Fondo oscuro específico para el logo blanco */
+            --crema: #FDFDF2;        
+            --gris-apoyo: #A9A9A9;   
+            --gris-claro: #E1E1E1;   
+            
+            /* UI Nodos Blender */
+            --node-bg: #282828;
+            --node-header-green: #409050;
+            --node-header-red: #904040;
+            --node-header-orange: #a35a2c;
+            --node-header-teal: #2c7ea3;
+            --node-header-magenta: #9c4060;
+            --socket-green: #63C763;
+            --socket-blue: #639fc7;
+            --socket-grey: #a0a0a0;
+            
+            /* Variables de Diseño */
+            --radius-md: 20px;
+            --radius-lg: 32px;
+            --shadow-soft: 0 8px 32px rgba(28, 30, 33, 0.15);
+            --glass-bg: rgba(253, 253, 242, 0.96);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background-color: var(--charcoal);
+            background-image: radial-gradient(circle at top right, var(--azul), var(--charcoal));
+            color: var(--charcoal);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Bitter', serif;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 1050px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 92vh;
+            max-height: 850px;
+            margin: 20px;
+            position: relative;
+        }
+
+        /* Cabecera optimizada con fondo oscuro para visibilidad de logo blanco */
+        .app-header {
+            padding: 15px 40px;
+            border-bottom: 2px solid var(--sienna);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--azul-header);
+            color: var(--crema);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-placeholder {
+            height: 45px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .header-brand h3 {
+            color: var(--crema);
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .progress-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--gris-claro);
+        }
+
+        .progress-bar {
+            width: 180px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--sienna);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* Área de Contenido Central */
+        .app-content {
+            flex: 1;
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .question-box {
+            width: 100%;
+            max-width: 850px;
+            background: white;
+            padding: 18px 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            margin-bottom: 25px;
+            border-left: 5px solid var(--azul);
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            text-align: left;
+            color: var(--charcoal);
+            line-height: 1.5;
+        }
+
+        .question-text strong {
+            color: var(--sienna);
+        }
+
+        /* --- FASE 1: Hotspots de Interfaz --- */
+        .interface-map {
+            position: relative;
+            width: 100%;
+            max-width: 850px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: none;
+            border: 3px solid var(--azul);
+        }
+
+        .interface-map img {
+            width: 100%;
+            display: block;
+        }
+
+        /* Zonas clickeables superpuestas en la imagen */
+        .hotspot {
+            position: absolute;
+            background: rgba(31, 59, 106, 0.02); /* Prácticamente transparente para que el alumno investigue */
+            border: 2px dashed transparent;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: transparent; /* Oculta la letra para que actúe como un test de verdad */
+            font-size: 1.8rem;
+            font-weight: bold;
+            font-family: 'Bitter', serif;
+            border-radius: 8px;
+        }
+
+        .hotspot:hover {
+            background: rgba(210, 105, 30, 0.25);
+            border-color: var(--sienna);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Coordenadas adaptadas basadas en el layout de Shading de Blender */
+        .hs-a { top: 3%; left: 21%; width: 59%; height: 44%; } /* Visor 3D (A) */
+        .hs-b { top: 50%; left: 21%; width: 59%; height: 47%; } /* Shader Editor (B) */
+        .hs-c { top: 3%; right: 1%; width: 18%; height: 94%; } /* Propiedades (C) */
+        .hs-d { top: 3%; left: 1%; width: 19%; height: 94%; } /* File Browser (D) */
+
+        /* --- FASE 2: Simulador de Nodos --- */
+        .node-simulator {
+            width: 100%;
+            max-width: 850px;
+            height: 420px;
+            background: #181818;
+            border-radius: var(--radius-md);
+            position: relative;
+            display: none;
+            overflow: hidden;
+            border: 3px solid #2d2d2d;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        .blender-node {
+            position: absolute;
+            width: 200px;
+            background: var(--node-bg);
+            border-radius: 8px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            color: #eee;
+            font-size: 11px;
+            user-select: none;
+            border: 1px solid #434343;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .node-header {
+            padding: 6px 10px;
+            border-top-left-radius: 7px;
+            border-top-right-radius: 7px;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            letter-spacing: 0.3px;
+        }
+        
+        .header-green { background: var(--node-header-green); }
+        .header-red { background: var(--node-header-red); }
+        .header-orange { background: var(--node-header-orange); }
+        .header-teal { background: var(--node-header-teal); }
+        .header-magenta { background: var(--node-header-magenta); }
+
+        .node-body { padding: 8px 0; }
+
+        .node-row {
+            padding: 4px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .socket {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            border: 2px solid #282828;
+            cursor: pointer;
+            position: absolute;
+            transition: transform 0.2s, box-shadow 0.2s;
+            z-index: 5;
+        }
+
+        .socket:hover { 
+            transform: scale(1.4); 
+        }
+
+        .socket-yellow { background: #e0e02b; }
+        .socket-grey { background: var(--socket-grey); }
+        .socket-blue { background: var(--socket-blue); }
+        .socket-green { background: var(--socket-green); }
+
+        .socket-out { right: -6px; top: calc(50% - 5.5px); }
+        .socket-in { left: -6px; top: calc(50% - 5.5px); }
+
+        .socket-active {
+            box-shadow: 0 0 12px #fff;
+            animation: pulse-socket 1.4s infinite;
+            border-color: #fff;
+        }
+
+        /* SVG Connection Line styling */
+        #connection-svg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .connection-line {
+            fill: none;
+            stroke-width: 3.5;
+            stroke-linecap: round;
+            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5));
+            transition: stroke-dashoffset 0.8s ease;
+        }
+
+        /* Posiciones absolutas controladas */
+        #node-coord { top: 120px; left: 25px; }
+        #node-gradient { top: 130px; left: 25px; }
+        #node-noise { top: 130px; left: 25px; }
+        #node-ramp { top: 110px; left: 270px; }
+        #node-bsdf { top: 70px; left: 510px; }
+        #node-output { top: 100px; left: 750px; }
+
+        /* --- UI Elements --- */
+        .actions-area {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .btn {
+            background-color: var(--sienna);
+            color: var(--crema);
+            padding: 12px 35px;
+            border-radius: 25px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(210, 105, 30, 0.2);
+            text-decoration: none;
+            display: none;
+        }
+        
+        .btn:hover {
+            background-color: #b85a18;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(210, 105, 30, 0.4);
+        }
+
+        /* TOAST FLOATING FEEDBACK: Resuelve el empalme al colocarse fijo en la pantalla */
+        .feedback-toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 35px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            z-index: 10000;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feedback-toast.show {
+            bottom: 40px;
+        }
+        
+        .toast-success { background: #2e7d32; border: 2px solid #4caf50; }
+        .toast-error { background: #c62828; border: 2px solid #ef5350; }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+            width: 100%;
+        }
+        .completion-screen h2 { 
+            font-size: 2.6rem; 
+            margin-bottom: 15px; 
+            color: var(--azul);
+        }
+
+        @keyframes pulse-socket {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.6); }
+            70% { transform: scale(1.25); box-shadow: 0 0 0 8px rgba(255, 255, 255, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+
+        /* Shake animation para errores */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        .shake { animation: shake 0.4s ease-in-out; }
+        
+        .footer-credits {
+            font-size: 0.85rem;
+            color: var(--gris-apoyo);
+            text-align: center;
+            margin-top: auto;
+            padding: 15px 0 5px 0;
+            line-height: 1.4;
+            border-top: 1px solid var(--gris-claro);
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="app-header">
+            <div class="header-brand">
+                <!-- Logotipo blanco institucional sobre fondo azul oscuro -->
+                <img src="jordan_logo.png" alt="Logo Jordan Rangel" class="logo-placeholder" onerror="this.src='https://placehold.co/150x45/15294a/ffffff?text=JORDAN+RANGEL';">
+                <h3>Actividad: Reconocimiento del Shading</h3>
+            </div>
+            <div class="progress-bar-container">
+                <span class="progress-text" id="progress-indicator">Paso 1/5</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-content">
+            <!-- Bloque explicativo/Pregunta -->
+            <div class="question-box">
+                <p class="question-text" id="question">Cargando actividad...</p>
+            </div>
+
+            <!-- CONTENEDOR 1: Mapa de Interfaz interactivo -->
+            <div class="interface-map" id="step-hotspots">
+                <!-- Plantilla de fondo -->
+                <img src="blender.png" alt="Interfaz de Blender" onerror="this.src='https://placehold.co/850x480/282828/ffffff?text=Layout+Blender+5.1+Workspace';">
+                
+                <div class="hotspot hs-a" onclick="checkAnswer('A')">A</div>
+                <div class="hotspot hs-b" onclick="checkAnswer('B')">B</div>
+                <div class="hotspot hs-c" onclick="checkAnswer('C')">C</div>
+                <div class="hotspot hs-d" onclick="checkAnswer('D')">D</div>
+            </div>
+
+            <!-- CONTENEDOR 2: Simulador de Conexión de Nodos -->
+            <div class="node-simulator" id="step-nodes">
+                <svg id="connection-svg"></svg>
+
+                <!-- NODO: Coordenadas de Textura (Solo utilidades decorativas o extras) -->
+                <div class="blender-node" id="node-coord">
+                    <div class="node-header header-magenta"><span>Texture Coordinate</span></div>
+                    <div class="node-body">
+                        <div class="node-row"><span>Generated</span><div class="socket socket-blue socket-out"></div></div>
+                        <div class="node-row"><span>Normal</span><div class="socket socket-blue socket-out"></div></div>
+                        <div class="node-row"><span>UV</span><div class="socket socket-blue socket-out"></div></div>
+                        <div class="node-row"><span>Object</span><div class="socket socket-blue socket-out"></div></div>
+                    </div>
+                </div>
+
+                <!-- NODO: Textura de Degradado (Para paso 5) -->
+                <div class="blender-node" id="node-gradient">
+                    <div class="node-header header-orange"><span>Gradient Texture</span></div>
+                    <div class="node-body">
+                        <div class="node-row"><span>Vector</span><div class="socket socket-blue socket-in"></div></div>
+                        <div class="node-row">
+                            <span>Color</span>
+                            <div class="socket socket-yellow socket-out" id="sock-gradient-color" onclick="handleSocketClick('sock-gradient-color')"></div>
+                        </div>
+                        <div class="node-row"><span>Fac</span><div class="socket socket-grey socket-out"></div></div>
+                    </div>
+                </div>
+
+                <!-- NODO: Textura de Ruido (Para paso 6) -->
+                <div class="blender-node" id="node-noise">
+                    <div class="node-header header-orange"><span>Noise Texture</span></div>
+                    <div class="node-body">
+                        <div class="node-row"><span>Vector</span><div class="socket socket-blue socket-in"></div></div>
+                        <div class="node-row"><span>Color</span><div class="socket socket-yellow socket-out"></div></div>
+                        <div class="node-row">
+                            <span>Fac</span>
+                            <div class="socket socket-grey socket-out" id="sock-noise-fac" onclick="handleSocketClick('sock-noise-fac')"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NODO: Color Ramp (Convertidor para pasos 5 y 6) -->
+                <div class="blender-node" id="node-ramp">
+                    <div class="node-header header-teal"><span>Color Ramp</span></div>
+                    <div class="node-body">
+                        <div class="node-row">
+                            <div class="socket socket-grey socket-in" id="sock-ramp-fac" onclick="handleSocketClick('sock-ramp-fac')"></div>
+                            <span style="margin-left:8px;">Fac</span>
+                        </div>
+                        <div class="node-row">
+                            <span style="border-radius: 4px; border:1px solid #555; padding: 2px 6px; background: linear-gradient(90deg, #000, #fff); width:60px; height: 14px; display:inline-block;"></span>
+                        </div>
+                        <div class="node-row">
+                            <div class="socket socket-yellow socket-in"></div>
+                            <span>Color</span>
+                            <div class="socket socket-yellow socket-out" id="sock-ramp-color" onclick="handleSocketClick('sock-ramp-color')"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NODO: BSDF Principal (Para paso 4) -->
+                <div class="blender-node" id="node-bsdf">
+                    <div class="node-header header-green"><span>Principled BSDF</span></div>
+                    <div class="node-body">
+                        <div class="node-row">
+                            <div class="socket socket-yellow socket-in" id="sock-bsdf-basecolor" onclick="handleSocketClick('sock-bsdf-basecolor')"></div>
+                            <span style="margin-left: 8px;">Base Color</span>
+                        </div>
+                        <div class="node-row">
+                            <div class="socket socket-grey socket-in"></div>
+                            <span style="margin-left: 8px;">Roughness</span>
+                        </div>
+                        <div class="node-row">
+                            <span>BSDF</span>
+                            <div class="socket socket-green socket-out" id="sock-bsdf-out" onclick="handleSocketClick('sock-bsdf-out')"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NODO: Material Output (Para paso 4) -->
+                <div class="blender-node" id="node-output">
+                    <div class="node-header header-red"><span>Material Output</span></div>
+                    <div class="node-body">
+                        <div class="node-row">
+                            <div class="socket socket-green socket-in" id="sock-out-surface" onclick="handleSocketClick('sock-out-surface')"></div>
+                            <span style="margin-left: 8px;">Surface</span>
+                        </div>
+                        <div class="node-row">
+                            <div class="socket socket-yellow socket-in"></div>
+                            <span style="margin-left: 8px;">Volume</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pantalla Final de Éxito -->
+            <div class="completion-screen" id="step-finish">
+                <h2>¡Actividad Completada! 🎉</h2>
+                <p style="font-size: 1.25rem; margin-bottom: 25px; color: #444; max-width: 650px; line-height: 1.6;">
+                    Has identificado correctamente los componentes de la interfaz de Shading y has practicado con éxito las lógicas de conexión de rampa de degradados y distribución aleatoria con ruido procedural en Blender 5.1.
+                </p>
+                <button class="btn" style="display: block;" onclick="window.location.href='campus_virtual.html'">Regresar a la Plataforma</button>
+            </div>
+
+            <!-- Acciones -->
+            <div class="actions-area">
+                <button class="btn" id="next-btn" onclick="nextStep()">Avanzar al Siguiente Paso</button>
+            </div>
+
+            <!-- Toast de Retroalimentación Independiente -->
+            <div class="feedback-toast" id="feedback-toast">
+                <span id="feedback-icon">✔</span>
+                <span id="feedback-message">¡Correcto!</span>
+            </div>
+
+            <div class="footer-credits">
+                Proyecto apoyado por el Sistema de Apoyos a la Creación y Proyectos Culturales 2025<br>
+                Jordan Rangel | IG: @jordan_bmb | works.jordan@gmail.com
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Estructura de Pasos Integrada sin revelar las respuestas de letras (A, B, C o D)
+        const steps = [
+            {
+                type: 'hotspot',
+                question: '<strong>Ejercicio 1 - Reconocimiento:</strong> Identifica y haz clic en la sección del <strong>Visor 3D</strong>, el espacio diseñado para visualizar renders y materiales en tiempo real.',
+                correct: 'A'
+            },
+            {
+                type: 'hotspot',
+                question: '<strong>Ejercicio 2 - Reconocimiento:</strong> Localiza y haz clic en el <strong>Editor de Nodos o Shader Editor</strong>, donde programarás la lógica de tus materiales.',
+                correct: 'B'
+            },
+            {
+                type: 'hotspot',
+                question: '<strong>Ejercicio 3 - Reconocimiento:</strong> Encuentra el panel de <strong>Propiedades</strong> para configurar los motores de renderizado y ajustes finales de capas del material.',
+                correct: 'C'
+            },
+            {
+                type: 'node',
+                subtype: 'gradient-map',
+                question: '<strong>Ejercicio 4 - Mapear Degradado:</strong> Para proyectar un degradado de color en la malla, conecta el puerto de salida de color amarillo del <strong>Color Ramp</strong> al puerto de entrada de color amarillo en tu <strong>Principled BSDF</strong>.'
+            },
+            {
+                type: 'node',
+                subtype: 'noise-random',
+                question: '<strong>Ejercicio 5 - Ruido Procedural:</strong> Consigue que los colores de tu Color Ramp se distribuyan de forma aleatoria. Conecta el puerto gris de factor <strong>Fac</strong> de tu <strong>Noise Texture</strong> al puerto gris de entrada <strong>Fac</strong> de tu <strong>Color Ramp</strong>.'
+            }
+        ];
+
+        let currentStep = 0;
+        let selectedSourceSocket = null;
+        let completedConnections = []; // Array que almacena las líneas activas dibujadas
+
+        const questionEl = document.getElementById('question');
+        const hotspotsContainer = document.getElementById('step-hotspots');
+        const nodesContainer = document.getElementById('step-nodes');
+        const finishContainer = document.getElementById('step-finish');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress');
+        const progressIndicator = document.getElementById('progress-indicator');
+        const feedbackToast = document.getElementById('feedback-toast');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const feedbackIcon = document.getElementById('feedback-icon');
+
+        function updateUI() {
+            // Actualizar porcentaje e indicador textual
+            const percent = (currentStep / steps.length) * 100;
+            progressBar.style.width = `${percent}%`;
+            progressIndicator.textContent = `Paso ${Math.min(currentStep + 1, steps.length)}/${steps.length}`;
+            nextBtn.style.display = 'none';
+            selectedSourceSocket = null;
+
+            if (currentStep >= steps.length) {
+                // Finalizar Actividad
+                questionEl.style.display = 'none';
+                hotspotsContainer.style.display = 'none';
+                nodesContainer.style.display = 'none';
+                finishContainer.style.display = 'flex';
+                progressIndicator.textContent = '¡Completado!';
+                return;
+            }
+
+            const step = steps[currentStep];
+            questionEl.innerHTML = step.question;
+
+            if (step.type === 'hotspot') {
+                hotspotsContainer.style.display = 'block';
+                nodesContainer.style.display = 'none';
+            } else if (step.type === 'node') {
+                hotspotsContainer.style.display = 'block'; // Asegura la transición
+                hotspotsContainer.style.display = 'none';
+                nodesContainer.style.display = 'block';
+                setupNodeStep(step.subtype);
+            }
+        }
+
+        // Dibuja una línea de conexión curva Bézier de Blender entre dos sockets de forma dinámica
+        function drawConnectionLine(fromId, toId, strokeColor) {
+            const svg = document.getElementById('connection-svg');
+            const fromElem = document.getElementById(fromId);
+            const toElem = document.getElementById(toId);
+            
+            if (!fromElem || !toElem) return;
+
+            // Obtener coordenadas de sockets relativas al contenedor del simulador
+            const simRect = nodesContainer.getBoundingClientRect();
+            const fromRect = fromElem.getBoundingClientRect();
+            const toRect = toElem.getBoundingClientRect();
+
+            const x1 = (fromRect.left + fromRect.width / 2) - simRect.left;
+            const y1 = (fromRect.top + fromRect.height / 2) - simRect.top;
+            const x2 = (toRect.left + toRect.width / 2) - simRect.left;
+            const y2 = (toRect.top + toRect.height / 2) - simRect.top;
+
+            // Crear curva de Blender clásica (Tangente horizontal)
+            const controlOffset = Math.abs(x2 - x1) * 0.5;
+            const dStr = `M ${x1} ${y1} C ${x1 + controlOffset} ${y1}, ${x2 - controlOffset} ${y2}, ${x2} ${y2}`;
+
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("d", dStr);
+            path.setAttribute("class", "connection-line");
+            path.setAttribute("stroke", strokeColor);
+            path.style.strokeDasharray = "1000";
+            path.style.strokeDashoffset = "1000";
+            
+            // Atributo personalizado para referenciarlo y limpiarlo si se reinicia
+            path.setAttribute("data-connection", `${fromId}-${toId}`);
+
+            svg.appendChild(path);
+
+            // Animar revelado de línea
+            setTimeout(() => {
+                path.style.strokeDashoffset = "0";
+            }, 50);
+
+            completedConnections.push({ from: fromId, to: toId, element: path, color: strokeColor });
+        }
+
+        // Limpia el lienzo de líneas SVG no deseadas
+        function clearConnections() {
+            const svg = document.getElementById('connection-svg');
+            svg.innerHTML = '';
+            completedConnections = [];
+        }
+
+        // Redibuja las conexiones activas si la pantalla cambia de tamaño
+        window.addEventListener('resize', () => {
+            if (nodesContainer.style.display === 'block') {
+                const activeConns = [...completedConnections];
+                clearConnections();
+                activeConns.forEach(c => {
+                    drawConnectionLine(c.from, c.to, c.color);
+                });
+            }
+        });
+
+        // Configura la visualización y opacidad de los nodos según el reto seleccionado
+        function setupNodeStep(subtype) {
+            clearConnections();
+            
+            // Reiniciar clases de sockets activos
+            document.querySelectorAll('.socket').forEach(s => s.classList.remove('socket-active'));
+
+            const nodeCoord = document.getElementById('node-coord');
+            const nodeGradient = document.getElementById('node-gradient');
+            const nodeNoise = document.getElementById('node-noise');
+            const nodeRamp = document.getElementById('node-ramp');
+            const nodeBsdf = document.getElementById('node-bsdf');
+            const nodeOutput = document.getElementById('node-output');
+
+            // Siempre pre-conectar el BSDF al Material Output (como en la captura del usuario)
+            drawConnectionLine('sock-bsdf-out', 'sock-out-surface', '#63C763');
+
+            if (subtype === 'gradient-map') {
+                // Paso 4: Conectar color ramp a bsdf
+                nodeCoord.style.display = 'block';
+                nodeGradient.style.display = 'block';
+                nodeNoise.style.display = 'none';
+                nodeRamp.style.display = 'block';
+                nodeBsdf.style.display = 'block';
+                nodeOutput.style.display = 'block';
+
+                // Iluminar puerto de salida sugerido
+                document.getElementById('sock-ramp-color').classList.add('socket-active');
+            } else if (subtype === 'noise-random') {
+                // Paso 5: Conectar noise a color ramp
+                nodeCoord.style.display = 'none';
+                nodeGradient.style.display = 'none';
+                nodeNoise.style.display = 'block';
+                nodeRamp.style.display = 'block';
+                nodeBsdf.style.display = 'block';
+                nodeOutput.style.display = 'block';
+
+                // Mostrar conexión que ya se hizo en el paso anterior de manera fija
+                drawConnectionLine('sock-ramp-color', 'sock-bsdf-basecolor', '#e0e02b');
+
+                // Sugerir interacción del nuevo paso
+                document.getElementById('sock-noise-fac').classList.add('socket-active');
+            }
+        }
+
+        function checkAnswer(selectedLetter) {
+            const step = steps[currentStep];
+            if (step.type !== 'hotspot') return;
+
+            if (step.correct === selectedLetter) {
+                showToast('¡Correcto! Has identificado la zona indicada.', 'success');
+                nextBtn.style.display = 'block';
+            } else {
+                showToast('Esa no es el área correcta. ¡Inténtalo de nuevo!', 'error');
+                hotspotsContainer.classList.add('shake');
+                setTimeout(() => hotspotsContainer.classList.remove('shake'), 450);
+            }
+        }
+
+        // Lógica interactiva de conexión de sockets (Permite conexiones libres pero valida el objetivo)
+        function handleSocketClick(socketId) {
+            const step = steps[currentStep];
+            if (step.type !== 'node') return;
+
+            // Conseguir elemento de socket
+            const clickedSocket = document.getElementById(socketId);
+
+            // Determinar si es de entrada o de salida
+            const isOutput = clickedSocket.classList.contains('socket-out');
+
+            if (isOutput) {
+                // Seleccionar como origen
+                if (selectedSourceSocket) {
+                    document.getElementById(selectedSourceSocket).classList.remove('socket-active');
+                }
+                selectedSourceSocket = socketId;
+                clickedSocket.classList.add('socket-active');
+                showToast('Puerto de salida seleccionado. Haz clic en un puerto de entrada para conectar.', 'success');
+            } else {
+                // Conectar al destino seleccionado
+                if (!selectedSourceSocket) {
+                    showToast('Por favor, selecciona primero un puerto de salida.', 'error');
+                    return;
+                }
+
+                const sourceId = selectedSourceSocket;
+                const destId = socketId;
+
+                // Definir color del cable basado en tipo de socket de origen
+                let color = '#a0a0a0'; // Gris por defecto
+                if (sourceId.includes('color')) color = '#e0e02b'; // Amarillo
+                if (sourceId.includes('out')) color = '#63C763'; // Verde
+
+                // Dibujar la línea temporalmente para simular libertad de conexión
+                drawConnectionLine(sourceId, destId, color);
+
+                // Validar si la conexión libre hecha por el usuario es la correcta para el paso
+                if (step.subtype === 'gradient-map') {
+                    if (sourceId === 'sock-ramp-color' && destId === 'sock-bsdf-basecolor') {
+                        document.getElementById(sourceId).classList.remove('socket-active');
+                        showToast('¡Excelente! Has mapeado el degradado al color base del material.', 'success');
+                        nextBtn.style.display = 'block';
+                        selectedSourceSocket = null;
+                    } else {
+                        showToast('Conexión incorrecta para este paso. Inténtalo de nuevo.', 'error');
+                        // Remover la última conexión incorrecta después de un breve delay
+                        setTimeout(() => {
+                            const lastConn = completedConnections.pop();
+                            if (lastConn) lastConn.element.remove();
+                        }, 1000);
+                        selectedSourceSocket = null;
+                    }
+                } 
+                else if (step.subtype === 'noise-random') {
+                    if (sourceId === 'sock-noise-fac' && destId === 'sock-ramp-fac') {
+                        document.getElementById(sourceId).classList.remove('socket-active');
+                        showToast('¡Perfecto! El factor de ruido ahora distribuirá la rampa de color de forma aleatoria.', 'success');
+                        nextBtn.style.display = 'block';
+                        selectedSourceSocket = null;
+                    } else {
+                        showToast('Esa conexión no distribuye el ruido de forma aleatoria en la rampa. Inténtalo de nuevo.', 'error');
+                        setTimeout(() => {
+                            const lastConn = completedConnections.pop();
+                            if (lastConn) lastConn.element.remove();
+                        }, 1000);
+                        selectedSourceSocket = null;
+                    }
+                }
+            }
+        }
+
+        function nextStep() {
+            currentStep++;
+            updateUI();
+        }
+
+        // Sistema Toast optimizado contra colisiones o empalmes visuales
+        function showToast(msg, type) {
+            feedbackMessage.textContent = msg;
+            feedbackToast.className = 'feedback-toast'; // Reset
+            
+            if (type === 'success') {
+                feedbackToast.classList.add('toast-success');
+                feedbackIcon.textContent = '✔';
+            } else {
+                feedbackToast.classList.add('toast-error');
+                feedbackIcon.textContent = '✖';
+            }
+            
+            feedbackToast.classList.add('show');
+            
+            // Desaparecer después de 3.2 segundos
+            setTimeout(() => {
+                feedbackToast.classList.remove('show');
+            }, 3200);
+        }
+
+        // Iniciar en el paso 0 en el cargado de ventana
+        window.onload = function() {
+            updateUI();
+        }
+    </script>
+</body>
+</html>

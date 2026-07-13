@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materiales Procedurales en Blender 5.1: Diseño Avanzado para Artistas y Animadores</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sienna: #D2691E;       
+            --charcoal: #1C1E21;     
+            --azul: #1F3B6A;         
+            --crema: #FDFDF2;        
+            --gris-apoyo: #A9A9A9;   
+            --gris-claro: #E1E1E1;   
+            
+            --radius-sm: 12px;
+            --radius-md: 20px;
+            --radius-lg: 32px;
+            --shadow-soft: 0 8px 24px rgba(28, 30, 33, 0.08);
+            --shadow-hover: 0 12px 32px rgba(210, 105, 30, 0.15);
+            --glass-bg: rgba(253, 253, 242, 0.85);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background-color: var(--crema);
+            color: var(--charcoal);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Bitter', serif;
+            color: var(--azul);
+            font-weight: 700;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        nav {
+            position: fixed; top: 0; width: 100%;
+            background: rgba(31, 59, 106, 0.95); /* Fondo Azul con ligera transparencia */
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Borde sutil */
+            z-index: 1000; padding: 15px 0;
+        }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Contenedor del Logotipo en PNG */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            height: 45px;
+        }
+        .logo-placeholder {
+            max-height: 100%;
+            width: auto;
+            object-fit: contain;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background-color: var(--sienna); color: var(--crema); padding: 12px 28px;
+            border-radius: 25px; text-decoration: none; font-weight: 600;
+            transition: all 0.3s ease; border: none; cursor: pointer;
+        }
+        .btn:hover { background-color: #b85a18; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(210, 105, 30, 0.3); }
+
+        /* Video Background */
+        .video-bg-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .video-bg-wrapper video {
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            object-fit: cover;
+            filter: blur(8px); /* Ajusta el nivel de desenfoque aquí */
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(31, 59, 106, 0.75), rgba(28, 30, 33, 0.85));
+            z-index: 0;
+        }
+
+        .hero {
+            position: relative; height: 90vh; min-height: 600px; display: flex; align-items: center;
+            color: var(--crema); text-align: center; overflow: hidden;
+        }
+        .hero-inner { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+        .hero h1 { color: var(--crema); font-size: 3.2rem; margin-bottom: 25px; text-shadow: 0 4px 10px rgba(0,0,0,0.5); line-height: 1.2; }
+        .hero p { font-size: 1.3rem; margin: 0 auto 35px; opacity: 0.95; line-height: 1.6; max-width: 850px; }
+
+        /* General Sections */
+        .section-padding { padding: 80px 0; }
+        .bg-white { background-color: #fff; }
+        .section-title { font-size: 2.3rem; margin-bottom: 20px; position: relative; padding-bottom: 15px; }
+        .section-title::after {
+            content: ''; position: absolute; left: 0; bottom: 0; width: 60px; height: 4px; background-color: var(--sienna); border-radius: 2px;
+        }
+        .text-center .section-title::after { left: 50%; transform: translateX(-50%); }
+
+        .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 40px; }
+        .metric-card { background: var(--crema); padding: 30px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--gris-claro); }
+        .metric-card h4 { color: var(--sienna); font-size: 2rem; margin-bottom: 10px; }
+        .metric-card p { font-weight: 600; color: var(--azul); }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+        
+        ul.styled-list { list-style: none; margin-top: 15px; }
+        ul.styled-list li { position: relative; padding-left: 25px; margin-bottom: 12px; font-size: 1.1rem; }
+        ul.styled-list li::before { content: '•'; color: var(--sienna); font-size: 1.5rem; position: absolute; left: 0; top: -5px; }
+
+        .slider-wrapper { position: relative; width: 100%; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-soft); background: var(--charcoal); aspect-ratio: 16/9; }
+        .slider-container { display: flex; height: 100%; transition: transform 0.5s ease-in-out; }
+        .slide { min-width: 100%; height: 100%; position: relative; }
+        .slide img { width: 100%; height: 100%; object-fit: cover; }
+        .slide-caption { position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(28, 30, 33, 0.9)); color: var(--crema); padding: 30px 20px 20px; font-family: 'Bitter', serif; font-size: 1.4rem; text-align: left; }
+        .slider-dots { position: absolute; bottom: 15px; right: 20px; display: flex; gap: 8px; }
+        .dot { width: 12px; height: 12px; background: rgba(255, 255, 255, 0.5); border-radius: 50%; cursor: pointer; transition: all 0.3s ease; }
+        .dot.active { background: var(--sienna); transform: scale(1.3); }
+
+        /* Rubric and Plan */
+        .syllabus-item { background: #fff; border: 1px solid var(--gris-claro); border-radius: var(--radius-md); margin-bottom: 15px; padding: 25px; transition: all 0.3s ease; }
+        .syllabus-item:hover { box-shadow: var(--shadow-hover); border-color: var(--sienna); transform: translateY(-2px); }
+        .syllabus-item h4 { font-size: 1.4rem; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .syllabus-item h4 span { background: var(--azul); color: var(--crema); padding: 4px 12px; border-radius: 12px; font-size: 0.9rem; font-family: 'Source Sans Pro', sans-serif; }
+
+        .rubric-table { width: 100%; border-collapse: collapse; margin-top: 20px; background: #fff; border-radius: var(--radius-md); overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .rubric-table th, .rubric-table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--gris-claro); font-size: 1rem; }
+        .rubric-table th { background-color: var(--azul); color: var(--crema); font-family: 'Bitter', serif; }
+        .rubric-table tr:last-child td { border-bottom: none; }
+        .criterio-title { font-weight: 700; color: var(--sienna); }
+
+        /* Semblanza Section */
+        .semblanza-box {
+            background-color: var(--crema);
+            border: 1px solid var(--gris-claro);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            margin-top: 40px;
+        }
+
+        footer { background: var(--azul); color: var(--crema); padding: 60px 20px 30px; text-align: center; border-top: 5px solid var(--sienna); }
+        .profile-pic { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--sienna); margin: 0 auto 20px; display: block; object-fit: cover; }
+        .footer-links a { color: var(--sienna); text-decoration: none; font-weight: 600; margin: 0 10px; }
+        
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 2.2rem; }
+            .section-padding { padding: 50px 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-content container">
+            <div class="logo-container">
+                <!-- Espacio preparado para tu logotipo en PNG. Reemplaza src con la ruta de tu logo -->
+                <img src="jordan_logo.png" alt="Logo" class="logo-placeholder" onerror="this.style.display='none';">
+            </div>
+            <a href="plataforma.html" class="btn">Ingresar al Campus Virtual</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="video-bg-wrapper">
+            <video autoplay loop muted playsinline>
+                <source src="fondo_vid.mp4" type="video/mp4">
+            </video>
+            <div class="video-overlay"></div>
+        </div>
+        <div class="container hero-inner">
+            <h1>Materiales Procedurales en Blender 5.1: Diseño Avanzado para Artistas y Animadores</h1>
+            <p>
+                Haz que tus proyectos luzcan exactamente como te los imaginas. Domina la creación de materiales 3D procedurales como una herramienta creativa fundamental para dar vida a tus maquetas, animaciones y visualizaciones profesionales.
+            </p>
+        </div>
+    </header>
+
+    <section class="section-padding bg-white">
+        <div class="container grid-2">
+            <div>
+                <h2 class="section-title">Acerca del Programa</h2>
+                <p style="font-size: 1.1rem; color: var(--charcoal); margin-bottom: 20px;">
+                    Se enfoca en artistas, diseñadores y animadores que buscan optimizar su flujo de trabajo en producción 3D, eliminando la dependencia de imágenes externas y UV unwrapping, para generar texturas volumétricas y materiales dinámicos complejos.
+                </p>
+                <p style="font-size: 1.1rem; color: var(--charcoal);">
+                    Durante cuatro semanas, los estudiantes explorarán la lógica y el funcionamiento del sistema de nodos en Blender, aprenderán a manipular datos en mallas y desarrollarán la habilidad para construir superficies reactivas y altamente personalizables.
+                </p>
+            </div>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h4>4</h4>
+                    <p>Semanas de Duración</p>
+                </div>
+                <div class="metric-card">
+                    <h4>100%</h4>
+                    <p>Procedural (Sin Imágenes)</p>
+                </div>
+                <div class="metric-card">
+                    <h4>5.1</h4>
+                    <p>Versión de Blender</p>
+                </div>
+                <div class="metric-card">
+                    <h4>Intermedio</h4>
+                    <p>Nivel de Especialización</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Semblanza del Autor justo abajo de Acerca del Programa -->
+        <div class="container">
+            <div class="semblanza-box">
+                <div style="display: flex; flex-direction: row; align-items: center; gap: 30px; flex-wrap: wrap; justify-content: center;">
+                    <img src="retrato.jpg" alt="Jordan Rangel" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; filter: grayscale(100%); flex-shrink: 0; border: 3px solid var(--sienna);">
+                    <div style="flex: 1; min-width: 300px;">
+                        <h3 style="font-size: 1.8rem; margin-bottom: 15px; color: var(--azul);">Sobre el Autor</h3>
+                        <p style="font-size: 1.1rem; color: var(--charcoal); line-height: 1.7;">
+                            El programa es impartido por Jordan Rangel, artista digital y especialista en gráficos 3D cuyo trabajo se enfoca en la hibridación de arte, ciencia y tecnología. Jordan ha sido distinguido con el estímulo del programa <strong>Jóvenes Creadores en la categoría de Nuevos Medios</strong>. Su práctica explora metodologías innovadoras, como se evidencia en su reciente proyecto de cerámica impresa en 3D, donde utilizó diseño procedural impulsado por datos geoespaciales y ambientales del río Atoyac para generar las formas escultóricas.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-padding">
+        <div class="container grid-2">
+            <div>
+                <h2 class="section-title">Objetivos de Aprendizaje</h2>
+                <ul class="styled-list">
+                    <li>Dominar la interfaz y herramientas del espacio de trabajo de Shading en Blender 5.1 para la creación de materiales procedurales.</li>
+                    <li>Comprender y aplicar la lógica de manipulación de datos en mallas para el desarrollo de texturas volumétricas.</li>
+                    <li>Construir materiales dinámicos complejos sin dependencia de imágenes externas ni UV unwrapping.</li>
+                    <li>Optimizar el flujo de trabajo en producción 3D mediante la integración eficiente de materiales procedurales.</li>
+                    <li>Diseñar y ejecutar proyectos que demuestren la capacidad para resolver superficies complejas con materiales avanzados.</li>
+                </ul>
+            </div>
+            <div style="background: #fff; padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--gris-claro); box-shadow: var(--shadow-soft);">
+                <h3 style="margin-bottom: 15px; font-size: 1.8rem;">Requerimientos del Programa</h3>
+                <ul class="styled-list">
+                    <li>Conocimientos básicos en modelado 3D y familiaridad previa con la interfaz de Blender.</li>
+                    <li>Computadora con Blender 5.1 instalado y configurado adecuadamente.</li>
+                    <li>Acceso a recursos digitales para la práctica, como tutoriales y documentación oficial.</li>
+                    <li>Habilidades básicas en navegación y manipulación de objetos dentro de entornos digitales.</li>
+                    <li>Motivación para el aprendizaje autodirigido y la experimentación técnica-creativa.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-padding bg-white">
+        <div class="container text-center">
+            <h2 class="section-title">Galería de Resultados</h2>
+            <p style="font-size: 1.1rem; margin-bottom: 40px; max-width: 700px; margin-left: auto; margin-right: auto;">
+                Explora el tipo de materiales físicos y reactivos que serás capaz de construir desde cero usando únicamente nodos matemáticos.
+            </p>
+            
+            <div class="slider-wrapper" style="max-width: 900px; margin: 0 auto;">
+                <div class="slider-container" id="slider">
+                    <div class="slide">
+                        <img src="https://placehold.co/1200x675/1C1E21/D2691E?text=Material+1:+Metal" alt="Metal">
+                        <div class="slide-caption">1. Metal: diseña un material con imperfecciones y oxidación controlada por nodos</div>
+                    </div>
+                    <div class="slide">
+                        <img src="https://placehold.co/1200x675/1C1E21/D2691E?text=Material+2:+Arcilla" alt="Arcilla">
+                        <div class="slide-caption">2. Arcilla: modela una superficie con porosidad física y desplazamiento real</div>
+                    </div>
+                    <div class="slide">
+                        <img src="https://placehold.co/1200x675/1C1E21/D2691E?text=Material+3:+Vidrio" alt="Vidrio">
+                        <div class="slide-caption">3. Vidrio: calcula la distorsión de la luz mediante el índice de refracción</div>
+                    </div>
+                    <div class="slide">
+                        <img src="https://placehold.co/1200x675/1C1E21/D2691E?text=Material+4:+Tela" alt="Tela">
+                        <div class="slide-caption">4. Tela: simula el entrelazado de fibras con funciones matemáticas de onda</div>
+                    </div>
+                    <div class="slide">
+                        <img src="https://placehold.co/1200x675/1C1E21/D2691E?text=Material+5:+Emision" alt="Emisión">
+                        <div class="slide-caption">5. Emisor: genera superficies que emiten luz reactiva a los cambios en su entorno</div>
+                    </div>
+                </div>
+                <div class="slider-dots" id="slider-dots"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-padding">
+        <div class="container grid-2" style="align-items: start;">
+            <div>
+                <h2 class="section-title">Plan de Estudios</h2>
+                <div class="syllabus-item">
+                    <h4><span>Unidad 1</span> Introducción al Shading</h4>
+                    <p>Familiarización con la interfaz, componentes del espacio de Shading, estructura nodal y primeros flujos de datos.</p>
+                </div>
+                <div class="syllabus-item">
+                    <h4><span>Unidad 2</span> Datos en Mallas</h4>
+                    <p>Análisis geométrico de atributos, nodos generativos matemáticos y texturas volumétricas aplicadas.</p>
+                </div>
+                <div class="syllabus-item">
+                    <h4><span>Unidad 3</span> Complejidad sin Imágenes</h4>
+                    <p>Comparativa entre Bump y Displacement, emisores de luz dinámicos y parámetros personalizables.</p>
+                </div>
+                <div class="syllabus-item">
+                    <h4><span>Unidad 4</span> Optimización y Proyecto</h4>
+                    <p>Integración en modelos complejos, diagnóstico de errores de rendimiento, Node Groups y entrega final.</p>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="section-title">Acreditación y Rúbrica</h2>
+                <div style="background: #fff; padding: 30px; border-radius: var(--radius-md); border: 1px solid var(--gris-claro);">
+                    <p style="margin-bottom: 20px;">
+                        Para acreditar satisfactoriamente el programa, el estudiante deberá presentar un <strong>Portafolio de Actividades</strong> recopilado en un documento único en formato <strong>PDF</strong>. Este documento debe compilar las capturas legibles de los diagramas nodales (redes de nodos desarrolladas) y los renders finales resultantes.
+                    </p>
+                    
+                    <h4 style="color: var(--azul); margin-bottom: 15px;">Criterios de Evaluación</h4>
+                    <div style="overflow-x: auto;">
+                        <table class="rubric-table">
+                            <thead>
+                                <tr>
+                                    <th>Criterio Técnico</th>
+                                    <th>Competencia Esperada</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="criterio-title">Integración Procedural</td>
+                                    <td>Uso de texturas matemáticas libres de mapas de bits externos. Estructuras lógicas y limpias.</td>
+                                </tr>
+                                <tr>
+                                    <td class="criterio-title">Optimización</td>
+                                    <td>Uso correcto de grupos de nodos (Node Groups) y respuesta de cálculo estable en la vista de renderizado.</td>
+                                </tr>
+                                <tr>
+                                    <td class="criterio-title">Calidad Visual</td>
+                                    <td>Física correcta de luz, rugosidad física, refracción coherente y mapeo de relieves lógicos.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div style="margin-top: 30px; text-align: center;">
+                        <a href="plataforma.html" class="btn" style="width: 100%; font-size: 1.2rem; padding: 15px;">Acceder al Campus Virtual</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <img src="jordan_logo.png" alt="Logo Jordan Rangel" style="height: 60px; margin: 0 auto 20px; display: block; object-fit: contain;">
+            <div class="footer-links" style="margin-bottom: 30px;">
+                <a href="https://instagram.com/jordan_bmb" target="_blank">IG: @jordan_bmb</a> | 
+                <a href="mailto:works.jordan@gmail.com">works.jordan@gmail.com</a>
+            </div>
+            <p class="apoyos-text" style="font-size: 0.9rem; color: var(--gris-apoyo); border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; max-width: 600px; margin: 0 auto;">
+                Proyecto apoyado por el Sistema de Apoyos a la Creación y Proyectos Culturales 2025
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const slider = document.getElementById('slider');
+            const slides = document.querySelectorAll('.slide');
+            const dotsContainer = document.getElementById('slider-dots');
+            let currentIndex = 0;
+            const totalSlides = slides.length;
+            let slideInterval;
+
+            slides.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.classList.add('dot');
+                if (index === 0) dot.classList.add('active');
+                dot.addEventListener('click', () => { goToSlide(index); resetInterval(); });
+                dotsContainer.appendChild(dot);
+            });
+
+            const dots = document.querySelectorAll('.dot');
+
+            function goToSlide(index) {
+                slider.style.transform = `translateX(-${index * 100}%)`;
+                dots[currentIndex].classList.remove('active');
+                currentIndex = index;
+                dots[currentIndex].classList.add('active');
+            }
+
+            function nextSlide() { goToSlide((currentIndex + 1) % totalSlides); }
+            function startInterval() { slideInterval = setInterval(nextSlide, 4500); }
+            function resetInterval() { clearInterval(slideInterval); startInterval(); }
+
+            startInterval();
+        });
+    </script>
+</body>
+</html>

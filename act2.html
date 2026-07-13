@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividad 2: Desafío de Nodos Avanzados</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Paleta de Colores de la Marca */
+            --sienna: #D2691E;       
+            --charcoal: #1C1E21;     
+            --azul: #1F3B6A;         
+            --azul-header: #15294a;  
+            --crema: #FDFDF2;        
+            --gris-apoyo: #A9A9A9;   
+            --gris-claro: #E1E1E1;   
+            
+            /* Variables de Diseño */
+            --radius-md: 20px;
+            --radius-lg: 32px;
+            --shadow-soft: 0 8px 32px rgba(28, 30, 33, 0.15);
+            --glass-bg: rgba(253, 253, 242, 0.96);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background-color: var(--charcoal);
+            background-image: radial-gradient(circle at top right, var(--azul), var(--charcoal));
+            color: var(--charcoal);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        h1, h2, h3 { font-family: 'Bitter', serif; }
+
+        .app-container {
+            width: 100%;
+            max-width: 1050px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 92vh;
+            max-height: 850px;
+            margin: 20px;
+            position: relative;
+        }
+
+        .app-header {
+            padding: 15px 40px;
+            border-bottom: 2px solid var(--sienna);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--azul-header);
+            color: var(--crema);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-placeholder {
+            height: 45px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .header-brand h3 {
+            color: var(--crema);
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .progress-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--gris-claro);
+        }
+
+        .progress-bar {
+            width: 180px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--sienna);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .app-content {
+            flex: 1;
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .question-box {
+            width: 100%;
+            max-width: 850px;
+            background: white;
+            padding: 18px 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            margin-bottom: 25px;
+            border-left: 5px solid var(--azul);
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            text-align: left;
+            color: var(--charcoal);
+            line-height: 1.5;
+        }
+
+        .question-text strong {
+            color: var(--sienna);
+        }
+
+        /* QUIZ INTERFACE ESTILOS */
+        .quiz-container {
+            width: 100%;
+            max-width: 850px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .quiz-image {
+            max-width: 100%;
+            max-height: 280px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            border: 3px solid var(--azul);
+            display: none; 
+            object-fit: contain;
+            background: #181818;
+            transition: opacity 0.3s ease;
+        }
+
+        .quiz-options {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .quiz-options { grid-template-columns: 1fr 1fr; }
+            .quiz-options.full-width { grid-template-columns: 1fr; }
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid var(--gris-claro);
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            color: var(--charcoal);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: left;
+            font-family: 'Source Sans Pro', sans-serif;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+
+        .option-indicator {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--gris-claro);
+            color: var(--charcoal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--sienna);
+            background: rgba(210, 105, 30, 0.04);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(210, 105, 30, 0.1);
+        }
+
+        .option-btn:hover:not(:disabled) .option-indicator {
+            background: var(--sienna);
+            color: white;
+        }
+
+        /* Estados de respuesta */
+        .option-btn.correct {
+            background: #e8f5e9;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+        .option-btn.correct .option-indicator {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .option-btn.wrong {
+            background: #ffebee;
+            border-color: #ef5350;
+            color: #c62828;
+            animation: shake 0.4s ease-in-out;
+        }
+        .option-btn.wrong .option-indicator {
+            background: #ef5350;
+            color: white;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .actions-area {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            width: 100%;
+        }
+
+        .btn {
+            background-color: var(--sienna);
+            color: var(--crema);
+            padding: 12px 35px;
+            border-radius: 25px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(210, 105, 30, 0.2);
+            display: none; /* Oculto hasta acertar */
+        }
+        
+        .btn:hover {
+            background-color: #b85a18;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(210, 105, 30, 0.4);
+        }
+
+        .feedback-toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 35px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            z-index: 10000;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feedback-toast.show { bottom: 40px; }
+        .toast-success { background: #2e7d32; border: 2px solid #4caf50; }
+        .toast-error { background: #c62828; border: 2px solid #ef5350; }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .completion-screen h2 { 
+            font-size: 2.6rem; 
+            margin-bottom: 15px; 
+            color: var(--azul);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .footer-credits {
+            font-size: 0.85rem;
+            color: var(--gris-apoyo);
+            text-align: center;
+            margin-top: auto;
+            padding: 15px 0 5px 0;
+            line-height: 1.4;
+            border-top: 1px solid var(--gris-claro);
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="app-header">
+            <div class="header-brand">
+                <img src="jordan_logo.png" alt="Logo Jordan Rangel" class="logo-placeholder" onerror="this.src='https://placehold.co/150x45/15294a/ffffff?text=JORDAN+RANGEL';">
+                <h3>Actividad 2: Desafío de Nodos Avanzados</h3>
+            </div>
+            <div class="progress-bar-container">
+                <span class="progress-text" id="progress-indicator">Pregunta 1/6</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-content">
+            <!-- Bloque explicativo/Pregunta -->
+            <div class="question-box" id="question-box">
+                <p class="question-text" id="question">Cargando desafío...</p>
+            </div>
+
+            <!-- CONTENEDOR PRINCIPAL DEL QUIZ -->
+            <div class="quiz-container" id="quiz-container">
+                <!-- Imagen dinámica (se oculta si no hay imagen en el paso) -->
+                <img src="" alt="Referencia visual" class="quiz-image" id="quiz-img">
+                
+                <!-- Opciones dinámicas -->
+                <div class="quiz-options" id="quiz-options">
+                    <!-- Los botones se inyectan vía JS -->
+                </div>
+            </div>
+
+            <div class="completion-screen" id="step-finish">
+                <h2>¡Desafío Completado! 🎉</h2>
+                <p style="font-size: 1.25rem; margin-bottom: 25px; color: #444; max-width: 650px; line-height: 1.6;">
+                    Excelente trabajo. Has demostrado comprender los métodos de selección, asignación de materiales y dominas los conceptos teóricos fundamentales de texturas volumétricas y matemáticas.
+                </p>
+                <button class="btn" style="display: block;" onclick="window.location.href='campus_virtual.html'">Regresar a la Plataforma</button>
+            </div>
+
+            <div class="actions-area">
+                <button class="btn" id="next-btn" onclick="nextStep()">Siguiente Pregunta</button>
+            </div>
+
+            <div class="feedback-toast" id="feedback-toast">
+                <span id="feedback-icon">✔</span>
+                <span id="feedback-message">¡Correcto!</span>
+            </div>
+
+            <div class="footer-credits">
+                Proyecto apoyado por el Sistema de Apoyos a la Creación y Proyectos Culturales 2025<br>
+                Jordan Rangel | IG: @jordan_bmb | works.jordan@gmail.com
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const steps = [
+            {
+                image: 'link.jpg',
+                question: '<strong>Pregunta 1 - Interacción y Selección:</strong> Observa la imagen. Para poder seleccionar partes específicas de una malla (como las orejas usando la tecla <strong>L</strong> para seleccionar toda la geometría enlazada/linkeada), ¿en qué modo de interacción de Blender debes estar?',
+                options: [
+                    { text: 'Object Mode (Modo Objeto)', correct: false },
+                    { text: 'Edit Mode (Modo Edición)', correct: true },
+                    { text: 'Sculpt Mode (Modo Escultura)', correct: false },
+                    { text: 'Texture Paint (Pintar Textura)', correct: false }
+                ]
+            },
+            {
+                image: 'asign.jpg',
+                question: '<strong>Pregunta 2 - Propiedades de Materiales:</strong> Dentro de las propiedades de los materiales, ¿qué botón te permite aplicar o destinar el material seleccionado <em>únicamente</em> a las caras que tienes seleccionadas previamente en tu malla?',
+                options: [
+                    { text: 'Assign (Asignar)', correct: true },
+                    { text: 'Select (Seleccionar)', correct: false },
+                    { text: 'Deselect (Deseleccionar)', correct: false }
+                ]
+            },
+            {
+                image: null, // Sin imagen para esta pregunta conceptual
+                question: '<strong>Pregunta 3 - Creación de Materiales:</strong> ¿Cuál es el flujo de clics correcto en el panel de propiedades para agregar un nuevo espacio (slot) y crear un material completamente nuevo desde cero?',
+                options: [
+                    { text: 'Clic en "-" y luego elegir un material existente', correct: false },
+                    { text: 'Clic en "Assign" y luego en "Select"', correct: false },
+                    { text: 'Clic en "+" y luego clic en "New" (Nuevo material)', correct: true }
+                ]
+            },
+            {
+                image: null,
+                question: '<strong>Pregunta 4 - Teoría Avanzada:</strong> A partir de lo revisado en clase, ¿cuáles de los siguientes nodos son ejemplos de <strong>generadores de patrones</strong> en Shading?',
+                options: [
+                    { text: 'Principled BSDF y Material Output', correct: false },
+                    { text: 'Voronoi, Noise, Musgrave y Wave', correct: true },
+                    { text: 'Texture Coordinate y Mapping', correct: false },
+                    { text: 'Mix Color y Math', correct: false }
+                ]
+            },
+            {
+                image: null,
+                question: '<strong>Pregunta 5 - Volumétricas:</strong> A partir de lo revisado en clase, ¿qué tipo de elementos se pueden construir mediante el ensamblaje de texturas volumétricas?',
+                options: [
+                    { text: 'Niebla, humo y materiales translúcidos', correct: true },
+                    { text: 'Mallas poligonales de alta resolución', correct: false },
+                    { text: 'Luces HDRI y mapas de entorno HDR', correct: false }
+                ]
+            },
+            {
+                image: null,
+                question: '<strong>Pregunta 6 - Integración de Datos:</strong> A partir de lo revisado en clase, ¿de qué manera se logra la integración de datos espaciales al ensamblar texturas volumétricas?',
+                options: [
+                    { text: 'Exportando la malla a FBX', correct: false },
+                    { text: 'Horneando texturas 2D a resolución 4K', correct: false },
+                    { text: 'Sin coordenadas de mapeo UV', correct: true }
+                ]
+            }
+        ];
+
+        let currentStep = 0;
+        let answeredCorrectly = false;
+
+        const questionEl = document.getElementById('question');
+        const questionBox = document.getElementById('question-box');
+        const quizContainer = document.getElementById('quiz-container');
+        const quizImg = document.getElementById('quiz-img');
+        const quizOptions = document.getElementById('quiz-options');
+        const finishContainer = document.getElementById('step-finish');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress');
+        const progressIndicator = document.getElementById('progress-indicator');
+        const feedbackToast = document.getElementById('feedback-toast');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const feedbackIcon = document.getElementById('feedback-icon');
+
+        function updateUI() {
+            // Limpiar estado de la pregunta actual
+            answeredCorrectly = false;
+            nextBtn.style.display = 'none';
+
+            // Actualizar porcentaje e indicador
+            const percent = (currentStep / steps.length) * 100;
+            progressBar.style.width = `${percent}%`;
+            progressIndicator.textContent = `Pregunta ${Math.min(currentStep + 1, steps.length)}/${steps.length}`;
+
+            // Validar si el usuario terminó el desafío
+            if (currentStep >= steps.length) {
+                questionBox.style.display = 'none';
+                quizContainer.style.display = 'none';
+                finishContainer.style.display = 'flex';
+                progressIndicator.textContent = '¡Completado!';
+                return;
+            }
+
+            const step = steps[currentStep];
+            questionEl.innerHTML = step.question;
+
+            // Manejo dinámico de la imagen
+            if (step.image) {
+                quizImg.src = step.image;
+                quizImg.style.display = 'block';
+                // Añadir un fallback (placeholder) en caso de que la imagen local no cargue en este entorno
+                quizImg.onerror = function() {
+                    this.src = `https://placehold.co/800x300/181818/ffffff?text=${encodeURIComponent(step.image)}`;
+                };
+            } else {
+                quizImg.style.display = 'none';
+            }
+
+            // Si hay pocas opciones largas, podemos cambiar a un formato de lista de 1 columna
+            if (step.options.length <= 3) {
+                quizOptions.classList.add('full-width');
+            } else {
+                quizOptions.classList.remove('full-width');
+            }
+
+            // Generar botones de opción
+            quizOptions.innerHTML = '';
+            const labels = ['A', 'B', 'C', 'D'];
+            
+            step.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerHTML = `
+                    <div class="option-indicator">${labels[index]}</div>
+                    <span>${option.text}</span>
+                `;
+                btn.onclick = () => handleAnswer(option.correct, btn);
+                quizOptions.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(isCorrect, btnElement) {
+            // Evitar que el usuario siga haciendo clic si ya acertó
+            if (answeredCorrectly) return;
+
+            if (isCorrect) {
+                answeredCorrectly = true;
+                btnElement.classList.add('correct');
+                showToast('¡Respuesta correcta! Excelente trabajo.', 'success');
+                nextBtn.style.display = 'block';
+                
+                // Deshabilitar las demás opciones
+                const allButtons = quizOptions.querySelectorAll('.option-btn');
+                allButtons.forEach(b => {
+                    if (b !== btnElement) b.disabled = true;
+                });
+            } else {
+                btnElement.classList.add('wrong');
+                showToast('Respuesta incorrecta. Analiza bien la pregunta e inténtalo de nuevo.', 'error');
+                
+                // Remover la clase wrong después de la animación para que pueda vibrar de nuevo si insiste
+                setTimeout(() => {
+                    btnElement.classList.remove('wrong');
+                }, 500);
+            }
+        }
+
+        function nextStep() {
+            currentStep++;
+            updateUI();
+        }
+
+        function showToast(msg, type) {
+            feedbackMessage.textContent = msg;
+            feedbackToast.className = 'feedback-toast'; // Reset
+            
+            if (type === 'success') {
+                feedbackToast.classList.add('toast-success');
+                feedbackIcon.textContent = '✔';
+            } else {
+                feedbackToast.classList.add('toast-error');
+                feedbackIcon.textContent = '✖';
+            }
+            
+            // Forzar reflow para reiniciar animaciones
+            void feedbackToast.offsetWidth;
+            feedbackToast.classList.add('show');
+            
+            // Ocultar automáticamente
+            setTimeout(() => {
+                feedbackToast.classList.remove('show');
+            }, 3200);
+        }
+
+        // Iniciar la actividad en el cargado de la ventana
+        window.onload = function() {
+            updateUI();
+        }
+    </script>
+</body>
+</html>

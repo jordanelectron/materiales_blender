@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividad 3: Evaluación de la Unidad 3</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Paleta de Colores de la Marca */
+            --sienna: #D2691E;       
+            --charcoal: #1C1E21;     
+            --azul: #1F3B6A;         
+            --azul-header: #15294a;  
+            --crema: #FDFDF2;        
+            --gris-apoyo: #A9A9A9;   
+            --gris-claro: #E1E1E1;   
+            
+            /* Variables de Diseño */
+            --radius-md: 20px;
+            --radius-lg: 32px;
+            --shadow-soft: 0 8px 32px rgba(28, 30, 33, 0.15);
+            --glass-bg: rgba(253, 253, 242, 0.96);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Source Sans Pro', sans-serif;
+            background-color: var(--charcoal);
+            background-image: radial-gradient(circle at top right, var(--azul), var(--charcoal));
+            color: var(--charcoal);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        h1, h2, h3 { font-family: 'Bitter', serif; }
+
+        .app-container {
+            width: 100%;
+            max-width: 1050px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 92vh;
+            max-height: 850px;
+            margin: 20px;
+            position: relative;
+        }
+
+        .app-header {
+            padding: 15px 40px;
+            border-bottom: 2px solid var(--sienna);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--azul-header);
+            color: var(--crema);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-placeholder {
+            height: 45px;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .header-brand h3 {
+            color: var(--crema);
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .progress-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--gris-claro);
+        }
+
+        .progress-bar {
+            width: 180px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--sienna);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .app-content {
+            flex: 1;
+            padding: 30px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .question-box {
+            width: 100%;
+            max-width: 850px;
+            background: white;
+            padding: 18px 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            margin-bottom: 25px;
+            border-left: 5px solid var(--azul);
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            text-align: left;
+            color: var(--charcoal);
+            line-height: 1.5;
+        }
+
+        .question-text strong {
+            color: var(--sienna);
+        }
+
+        /* CONTENEDORES INTERACTIVOS */
+        .interactive-container {
+            width: 100%;
+            max-width: 850px;
+            display: none; /* Se activa vía JS */
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+        .interactive-container.active {
+            display: flex;
+        }
+
+        .quiz-image {
+            max-width: 100%;
+            max-height: 280px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            border: 3px solid var(--azul);
+            display: none; 
+            object-fit: contain;
+            background: #181818;
+            transition: opacity 0.3s ease;
+        }
+
+        /* 1. ESTILOS OPCIÓN MÚLTIPLE */
+        .quiz-options {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .quiz-options { grid-template-columns: 1fr 1fr; }
+            .quiz-options.full-width { grid-template-columns: 1fr; }
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid var(--gris-claro);
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            color: var(--charcoal);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: left;
+            font-family: 'Source Sans Pro', sans-serif;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+
+        .option-indicator {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--gris-claro);
+            color: var(--charcoal);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--sienna);
+            background: rgba(210, 105, 30, 0.04);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(210, 105, 30, 0.1);
+        }
+        .option-btn:hover:not(:disabled) .option-indicator {
+            background: var(--sienna);
+            color: white;
+        }
+        .option-btn.correct {
+            background: #e8f5e9; border-color: #4caf50; color: #2e7d32;
+        }
+        .option-btn.correct .option-indicator {
+            background: #4caf50; color: white;
+        }
+        .option-btn.wrong {
+            background: #ffebee; border-color: #ef5350; color: #c62828;
+            animation: shake 0.4s ease-in-out;
+        }
+        .option-btn.wrong .option-indicator {
+            background: #ef5350; color: white;
+        }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+
+        /* 2. ESTILOS JUEGO DE MEMORIA */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 600px;
+        }
+        @media (min-width: 600px) {
+            .memory-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        .memory-card {
+            height: 100px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+        .memory-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .memory-card.flipped .memory-card-inner { transform: rotateY(180deg); }
+        .memory-card-front, .memory-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-align: center;
+            padding: 10px;
+        }
+        .memory-card-front {
+            background: var(--azul);
+            color: white;
+            font-size: 1.5rem;
+        }
+        .memory-card-back {
+            background: white;
+            color: var(--charcoal);
+            transform: rotateY(180deg);
+            border: 3px solid var(--sienna);
+        }
+        .memory-card.matched .memory-card-back {
+            background: #e8f5e9;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        /* 3. ESTILOS MATCH / COLUMNAS */
+        .match-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            width: 100%;
+        }
+        .match-col {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .match-btn {
+            background: white;
+            border: 2px solid var(--gris-claro);
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+        .match-btn:hover { border-color: var(--azul); }
+        .match-btn.selected {
+            background: rgba(31, 59, 106, 0.1);
+            border-color: var(--azul);
+            transform: scale(1.02);
+        }
+        .match-btn.matched {
+            background: #e8f5e9;
+            border-color: #4caf50;
+            color: #2e7d32;
+            cursor: default;
+            opacity: 0.8;
+        }
+        .match-btn.error {
+            animation: shake 0.4s ease-in-out;
+            background: #ffebee;
+            border-color: #ef5350;
+        }
+
+        .actions-area {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            width: 100%;
+        }
+
+        .btn {
+            background-color: var(--sienna);
+            color: var(--crema);
+            padding: 12px 35px;
+            border-radius: 25px;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(210, 105, 30, 0.2);
+            display: none; 
+        }
+        
+        .btn:hover {
+            background-color: #b85a18;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(210, 105, 30, 0.4);
+        }
+
+        .feedback-toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 35px;
+            border-radius: 50px;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            z-index: 10000;
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feedback-toast.show { bottom: 40px; }
+        .toast-success { background: #2e7d32; border: 2px solid #4caf50; }
+        .toast-error { background: #c62828; border: 2px solid #ef5350; }
+
+        .completion-screen {
+            display: none;
+            text-align: center;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .completion-screen h2 { 
+            font-size: 2.6rem; 
+            margin-bottom: 15px; 
+            color: var(--azul);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        .footer-credits {
+            font-size: 0.85rem;
+            color: var(--gris-apoyo);
+            text-align: center;
+            margin-top: auto;
+            padding: 15px 0 5px 0;
+            line-height: 1.4;
+            border-top: 1px solid var(--gris-claro);
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="app-header">
+            <div class="header-brand">
+                <img src="jordan_logo.png" alt="Logo Jordan Rangel" class="logo-placeholder" onerror="this.src='https://placehold.co/150x45/15294a/ffffff?text=JORDAN+RANGEL';">
+                <h3>Actividad 3: Evaluación de la Unidad 3</h3>
+            </div>
+            <div class="progress-bar-container">
+                <span class="progress-text" id="progress-indicator">Paso 1/10</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="app-content">
+            <!-- Bloque explicativo/Pregunta -->
+            <div class="question-box" id="question-box">
+                <p class="question-text" id="question">Cargando desafío...</p>
+            </div>
+
+            <!-- CONTENEDORES INTERACTIVOS -->
+            
+            <!-- A. Quiz Estándar -->
+            <div class="interactive-container" id="container-quiz">
+                <img src="" alt="Referencia visual" class="quiz-image" id="quiz-img">
+                <div class="quiz-options" id="quiz-options"></div>
+            </div>
+
+            <!-- B. Juego de Memoria -->
+            <div class="interactive-container" id="container-memory">
+                <div class="memory-grid" id="memory-grid"></div>
+            </div>
+
+            <!-- C. Match (Unir Columnas) -->
+            <div class="interactive-container" id="container-match">
+                <div class="match-grid">
+                    <div class="match-col" id="match-left"></div>
+                    <div class="match-col" id="match-right"></div>
+                </div>
+            </div>
+
+            <!-- PANTALLA FINAL -->
+            <div class="completion-screen" id="step-finish">
+                <h2>¡Evaluación Superada! 🎉</h2>
+                <p style="font-size: 1.25rem; margin-bottom: 25px; color: #444; max-width: 650px; line-height: 1.6;">
+                    Excelente trabajo. Has demostrado un gran dominio en los fundamentos de materiales sin bitmap, texturas volumétricas y la corrección de errores de la Unidad 3.
+                </p>
+                <button class="btn" style="display: block;" onclick="window.location.href='campus_virtual.html'">Regresar a la Plataforma</button>
+            </div>
+
+            <div class="actions-area">
+                <button class="btn" id="next-btn" onclick="nextStep()">Siguiente Desafío</button>
+            </div>
+
+            <div class="feedback-toast" id="feedback-toast">
+                <span id="feedback-icon">✔</span>
+                <span id="feedback-message">¡Correcto!</span>
+            </div>
+
+            <div class="footer-credits">
+                Proyecto apoyado por el Sistema de Apoyos a la Creación y Proyectos Culturales 2025<br>
+                Jordan Rangel | IG: @jordan_bmb | works.jordan@gmail.com
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const steps = [
+            {
+                type: 'quiz',
+                question: '<strong>Pregunta 1 - Fundamentos:</strong> Según lo visto en el temario, ¿cuál es la principal ventaja de utilizar materiales generados por nodos (sin bitmap)?',
+                image: null,
+                options: [
+                    { text: 'Aumentan la resolución de los modelos 3D', correct: false },
+                    { text: 'Permiten animar los vértices directamente', correct: false },
+                    { text: 'Ventajas computacionales y de almacenamiento al eliminar dependencias de archivos pesados', correct: true }
+                ]
+            },
+            {
+                type: 'quiz',
+                question: '<strong>Pregunta 2 - Combinación:</strong> Observa la imagen. Cuando usamos operaciones lógicas (como nodos <em>Math</em>) y <em>ColorRamps</em> (gradientes), ¿qué objetivo buscamos en el material?',
+                image: 'demo1.png', // Requiere demo1.png
+                options: [
+                    { text: 'Iluminar la escena globalmente', correct: false },
+                    { text: 'Obtener patrones con detalles microscópicos', correct: true },
+                    { text: 'Reducir el tiempo de renderizado a la mitad', correct: false },
+                    { text: 'Exportar mapas UV automáticos', correct: false }
+                ]
+            },
+            {
+                type: 'quiz',
+                question: '<strong>Pregunta 3 - Texturas Dinámicas:</strong> ¿Qué tipo de nodos aplicamos típicamente para simular efectos como humo y niebla?',
+                image: null,
+                options: [
+                    { text: 'Nodos de volumen y ruido 3D', correct: true },
+                    { text: 'Nodos de Emisión y Transparencia 2D', correct: false },
+                    { text: 'Nodos de deformación de malla', correct: false }
+                ]
+            },
+            {
+                type: 'memory',
+                question: '<strong>Pregunta 4 - Juego de Memoria:</strong> Encuentra las parejas de conceptos clave de la Unidad 3 volteando las cartas.',
+                pairs: [
+                    { id: 1, text1: 'Rugosidad', text2: 'Roughness' },
+                    { id: 2, text1: 'Niebla / Humo', text2: 'Volumétricas' },
+                    { id: 3, text1: 'Detalles Microscópicos', text2: 'Matemáticas y Gradientes' },
+                    { id: 4, text1: 'Artefactos', text2: 'Diagnóstico de Errores' }
+                ]
+            },
+            {
+                type: 'quiz',
+                question: '<strong>Pregunta 5 - Superficies Realistas:</strong> Para crear superficies que interactúen físicamente con la iluminación de la escena sin aumentar los polígonos, ¿qué mapas utilizamos principalmente?',
+                image: null,
+                options: [
+                    { text: 'Normales y mapas de rugosidad (Roughness)', correct: true },
+                    { text: 'Mapas de Albedo y Color Base', correct: false },
+                    { text: 'Solo desplazamiento de geometría real', correct: false }
+                ]
+            },
+            {
+                type: 'match',
+                question: '<strong>Pregunta 6 - Conexión de Conceptos:</strong> Toca un concepto de la columna izquierda y luego toca su definición correcta en la derecha.',
+                left: [
+                    { id: 'm1', text: 'Interfaces Amigables' },
+                    { id: 'm2', text: 'Diagnóstico de Errores' },
+                    { id: 'm3', text: 'Texturas sin Bitmap' }
+                ],
+                right: [
+                    { id: 'm3', text: 'Eliminan la dependencia de archivos pesados.' },
+                    { id: 'm1', text: 'Exponen parámetros para facilitar el trabajo en equipo.' },
+                    { id: 'm2', text: 'Corrigen artefactos visuales comunes.' }
+                ]
+            },
+            {
+                type: 'quiz',
+                question: '<strong>Pregunta 7 - Organización:</strong> Al revisar un material muy complejo, ¿cuál es un paso crítico mencionado en el diagnóstico de errores?',
+                image: null,
+                options: [
+                    { text: 'Borrar todo y empezar de nuevo', correct: false },
+                    { text: 'Optimización de árboles de nodos redundantes', correct: true },
+                    { text: 'Cambiar el motor de render a Eevee', correct: false }
+                ]
+            },
+            {
+                type: 'quiz',
+                question: '<strong>Pregunta 8 - Trabajo en Equipo:</strong> Observa la interfaz expuesta. ¿Por qué es importante configurar controles personalizados e "interfaces amigables" en materiales procedurales?',
+                image: 'demo2.png', // Requiere demo2.png
+                options: [
+                    { text: 'Para que el renderizado sea más rápido', correct: false },
+                    { text: 'Para facilitar el flujo de trabajo en equipos multidisciplinares', correct: true },
+                    { text: 'Para evitar usar nodos matemáticos', correct: false }
+                ]
+            },
+            {
+                type: 'quiz',
+                question: '<strong>Pregunta 9 - Profundidad:</strong> ¿Qué tipo de desplazamiento se menciona para interactuar de forma dinámica con la iluminación?',
+                image: null,
+                options: [
+                    { text: 'Desplazamiento Dinámico', correct: true },
+                    { text: 'Desplazamiento Estático Horneado', correct: false },
+                    { text: 'Desplazamiento por Huesos (Armature)', correct: false }
+                ]
+            },
+            {
+                type: 'quiz',
+                question: '<strong>Pregunta 10 - Conclusión Unidad 3:</strong> En resumen, las técnicas avanzadas de shading vistas permiten crear materiales que son...',
+                image: null,
+                options: [
+                    { text: 'Pesados, estáticos y dependientes de resoluciones 4K.', correct: false },
+                    { text: 'Únicamente útiles para videojuegos móviles de baja resolución.', correct: false },
+                    { text: 'Procedurales, optimizados y altamente configurables desde la interfaz.', correct: true }
+                ]
+            }
+        ];
+
+        let currentStep = 0;
+        let answeredCorrectly = false;
+
+        // Elementos DOM Globales
+        const questionEl = document.getElementById('question');
+        const questionBox = document.getElementById('question-box');
+        const finishContainer = document.getElementById('step-finish');
+        const nextBtn = document.getElementById('next-btn');
+        const progressBar = document.getElementById('progress');
+        const progressIndicator = document.getElementById('progress-indicator');
+        const feedbackToast = document.getElementById('feedback-toast');
+        
+        // Elementos DOM Contenedores
+        const contQuiz = document.getElementById('container-quiz');
+        const contMemory = document.getElementById('container-memory');
+        const contMatch = document.getElementById('container-match');
+
+        function hideAllContainers() {
+            contQuiz.classList.remove('active');
+            contMemory.classList.remove('active');
+            contMatch.classList.remove('active');
+        }
+
+        function updateUI() {
+            answeredCorrectly = false;
+            nextBtn.style.display = 'none';
+            hideAllContainers();
+
+            const percent = (currentStep / steps.length) * 100;
+            progressBar.style.width = `${percent}%`;
+            progressIndicator.textContent = `Paso ${Math.min(currentStep + 1, steps.length)}/${steps.length}`;
+
+            if (currentStep >= steps.length) {
+                questionBox.style.display = 'none';
+                finishContainer.style.display = 'flex';
+                progressIndicator.textContent = '¡Completado!';
+                return;
+            }
+
+            const step = steps[currentStep];
+            questionEl.innerHTML = step.question;
+
+            if (step.type === 'quiz') renderQuiz(step);
+            else if (step.type === 'memory') renderMemory(step);
+            else if (step.type === 'match') renderMatch(step);
+        }
+
+        /* --- LÓGICA TIPO: QUIZ --- */
+        function renderQuiz(step) {
+            contQuiz.classList.add('active');
+            const quizImg = document.getElementById('quiz-img');
+            const quizOptions = document.getElementById('quiz-options');
+
+            if (step.image) {
+                quizImg.src = step.image;
+                quizImg.style.display = 'block';
+                quizImg.onerror = function() {
+                    this.src = `https://placehold.co/800x300/181818/ffffff?text=${encodeURIComponent(step.image)}`;
+                };
+            } else {
+                quizImg.style.display = 'none';
+            }
+
+            if (step.options.length <= 3) quizOptions.classList.add('full-width');
+            else quizOptions.classList.remove('full-width');
+
+            quizOptions.innerHTML = '';
+            const labels = ['A', 'B', 'C', 'D'];
+            
+            step.options.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerHTML = `
+                    <div class="option-indicator">${labels[index]}</div>
+                    <span>${option.text}</span>
+                `;
+                btn.onclick = () => {
+                    if (answeredCorrectly) return;
+                    if (option.correct) {
+                        answeredCorrectly = true;
+                        btn.classList.add('correct');
+                        showToast('¡Respuesta correcta!', 'success');
+                        nextBtn.style.display = 'block';
+                        quizOptions.querySelectorAll('.option-btn').forEach(b => { if (b !== btn) b.disabled = true; });
+                    } else {
+                        btn.classList.add('wrong');
+                        showToast('Respuesta incorrecta. Inténtalo de nuevo.', 'error');
+                        setTimeout(() => btn.classList.remove('wrong'), 500);
+                    }
+                };
+                quizOptions.appendChild(btn);
+            });
+        }
+
+        /* --- LÓGICA TIPO: JUEGO DE MEMORIA --- */
+        let hasFlippedCard = false;
+        let lockBoard = false;
+        let firstCard, secondCard;
+        let memoryMatches = 0;
+
+        function renderMemory(step) {
+            contMemory.classList.add('active');
+            const grid = document.getElementById('memory-grid');
+            grid.innerHTML = '';
+            memoryMatches = 0;
+            hasFlippedCard = false;
+            lockBoard = false;
+            
+            let cardsData = [];
+            step.pairs.forEach(p => {
+                cardsData.push({ id: p.id, text: p.text1 });
+                cardsData.push({ id: p.id, text: p.text2 });
+            });
+            // Mezclar cartas
+            cardsData.sort(() => 0.5 - Math.random());
+
+            cardsData.forEach(card => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'memory-card';
+                cardEl.dataset.id = card.id;
+                cardEl.innerHTML = `
+                    <div class="memory-card-inner">
+                        <div class="memory-card-front">?</div>
+                        <div class="memory-card-back">${card.text}</div>
+                    </div>
+                `;
+                cardEl.addEventListener('click', flipCard);
+                grid.appendChild(cardEl);
+            });
+        }
+
+        function flipCard() {
+            if (lockBoard) return;
+            if (this === firstCard) return;
+            this.classList.add('flipped');
+
+            if (!hasFlippedCard) {
+                hasFlippedCard = true;
+                firstCard = this;
+                return;
+            }
+
+            secondCard = this;
+            checkForMatch();
+        }
+
+        function checkForMatch() {
+            let isMatch = firstCard.dataset.id === secondCard.dataset.id;
+            isMatch ? disableCards() : unflipCards();
+        }
+
+        function disableCards() {
+            firstCard.removeEventListener('click', flipCard);
+            secondCard.removeEventListener('click', flipCard);
+            firstCard.classList.add('matched');
+            secondCard.classList.add('matched');
+            resetBoard();
+            memoryMatches++;
+            
+            if (memoryMatches === steps[currentStep].pairs.length) {
+                setTimeout(() => {
+                    showToast('¡Memoria completada!', 'success');
+                    nextBtn.style.display = 'block';
+                    answeredCorrectly = true;
+                }, 500);
+            }
+        }
+
+        function unflipCards() {
+            lockBoard = true;
+            setTimeout(() => {
+                firstCard.classList.remove('flipped');
+                secondCard.classList.remove('flipped');
+                resetBoard();
+            }, 1000);
+        }
+
+        function resetBoard() {
+            [hasFlippedCard, lockBoard] = [false, false];
+            [firstCard, secondCard] = [null, null];
+        }
+
+        /* --- LÓGICA TIPO: MATCH (CONECTAR COLUMNAS) --- */
+        let matchSelectedLeft = null;
+        let matchSelectedRight = null;
+        let matchPairsSolved = 0;
+
+        function renderMatch(step) {
+            contMatch.classList.add('active');
+            const colLeft = document.getElementById('match-left');
+            const colRight = document.getElementById('match-right');
+            colLeft.innerHTML = '';
+            colRight.innerHTML = '';
+            matchPairsSolved = 0;
+            matchSelectedLeft = null;
+            matchSelectedRight = null;
+
+            // Desordenar arrays independientemente para que no estén alineadas visualmente
+            let arrLeft = [...step.left].sort(() => 0.5 - Math.random());
+            let arrRight = [...step.right].sort(() => 0.5 - Math.random());
+
+            arrLeft.forEach(item => {
+                let btn = document.createElement('button');
+                btn.className = 'match-btn left-btn';
+                btn.textContent = item.text;
+                btn.dataset.id = item.id;
+                btn.onclick = () => handleMatchClick('left', btn, step.left.length);
+                colLeft.appendChild(btn);
+            });
+
+            arrRight.forEach(item => {
+                let btn = document.createElement('button');
+                btn.className = 'match-btn right-btn';
+                btn.textContent = item.text;
+                btn.dataset.id = item.id;
+                btn.onclick = () => handleMatchClick('right', btn, step.left.length);
+                colRight.appendChild(btn);
+            });
+        }
+
+        function handleMatchClick(side, btn, totalPairs) {
+            if (btn.classList.contains('matched')) return; // Ya resuelto
+
+            if (side === 'left') {
+                if (matchSelectedLeft) matchSelectedLeft.classList.remove('selected');
+                matchSelectedLeft = btn;
+                btn.classList.add('selected');
+            } else {
+                if (matchSelectedRight) matchSelectedRight.classList.remove('selected');
+                matchSelectedRight = btn;
+                btn.classList.add('selected');
+            }
+
+            if (matchSelectedLeft && matchSelectedRight) {
+                // Evaluar si coinciden
+                if (matchSelectedLeft.dataset.id === matchSelectedRight.dataset.id) {
+                    // Match Correcto
+                    matchSelectedLeft.classList.remove('selected');
+                    matchSelectedRight.classList.remove('selected');
+                    matchSelectedLeft.classList.add('matched');
+                    matchSelectedRight.classList.add('matched');
+                    matchPairsSolved++;
+                    matchSelectedLeft = null;
+                    matchSelectedRight = null;
+
+                    if (matchPairsSolved === totalPairs) {
+                        showToast('¡Conexiones correctas!', 'success');
+                        nextBtn.style.display = 'block';
+                        answeredCorrectly = true;
+                    }
+                } else {
+                    // Match Incorrecto
+                    matchSelectedLeft.classList.add('error');
+                    matchSelectedRight.classList.add('error');
+                    let tl = matchSelectedLeft, tr = matchSelectedRight;
+                    matchSelectedLeft = null;
+                    matchSelectedRight = null;
+                    
+                    setTimeout(() => {
+                        tl.classList.remove('selected', 'error');
+                        tr.classList.remove('selected', 'error');
+                    }, 500);
+                }
+            }
+        }
+
+
+        /* --- UTILIDADES --- */
+        function nextStep() {
+            currentStep++;
+            updateUI();
+        }
+
+        function showToast(msg, type) {
+            const fbMsg = document.getElementById('feedback-message');
+            const fbIcon = document.getElementById('feedback-icon');
+            
+            fbMsg.textContent = msg;
+            feedbackToast.className = 'feedback-toast'; 
+            
+            if (type === 'success') {
+                feedbackToast.classList.add('toast-success');
+                fbIcon.textContent = '✔';
+            } else {
+                feedbackToast.classList.add('toast-error');
+                fbIcon.textContent = '✖';
+            }
+            
+            void feedbackToast.offsetWidth;
+            feedbackToast.classList.add('show');
+            
+            setTimeout(() => { feedbackToast.classList.remove('show'); }, 3200);
+        }
+
+        window.onload = function() {
+            updateUI();
+        }
+    </script>
+</body>
+</html>

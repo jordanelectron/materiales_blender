@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Virtual: Blender 5.1 - Diseño de Materiales Procedurales</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sienna: #D2691E; 
+            --charcoal: #1C1E21; 
+            --azul: #1F3B6A; 
+            --crema: #FDFDF2; 
+            --gris-apoyo: #A9A9A9; 
+            --gris-claro: #E1E1E1;
+            --radius-md: 20px; 
+            --radius-lg: 32px;
+            --shadow-soft: 0 8px 24px rgba(28, 30, 33, 0.08);
+            --shadow-hover: 0 12px 32px rgba(210, 105, 30, 0.15);
+            --glass-bg: rgba(253, 253, 242, 0.95);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Source Sans Pro', sans-serif; 
+            background-color: var(--crema); 
+            color: var(--charcoal); 
+            line-height: 1.6; 
+            overflow-x: hidden;
+        }
+        h1, h2, h3, h4 { font-family: 'Bitter', serif; color: var(--azul); font-weight: 700; }
+
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+
+        nav { 
+            background: var(--azul); 
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+            padding: 15px 0; 
+            position: sticky; top: 0; z-index: 100; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2); 
+        }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+        
+        .logo-container { display: flex; align-items: center; height: 45px; }
+        .logo-placeholder { max-height: 100%; width: auto; object-fit: contain; }
+
+        .back-link { color: var(--crema); text-decoration: none; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;}
+        .back-link:hover { color: var(--sienna); }
+
+        .welcome-banner { 
+            background: var(--azul); 
+            color: var(--crema); 
+            padding: 50px 20px; 
+            border-radius: var(--radius-md); 
+            margin: 40px 0; 
+            text-align: center; 
+        }
+        .welcome-banner h1 { 
+            color: var(--crema); 
+            font-size: 2.5rem; 
+            margin-bottom: 15px; 
+        }
+        .welcome-banner p {
+            font-size: 1.2rem; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+
+        .btn { 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            background-color: var(--sienna); 
+            color: var(--crema); 
+            padding: 10px 24px; 
+            border-radius: 25px; 
+            text-decoration: none; 
+            font-weight: 600; 
+            transition: all 0.3s ease; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 0.95rem;
+        }
+        .btn:hover { background-color: #b85a18; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(210, 105, 30, 0.3); }
+        .btn-alt { background-color: var(--azul); }
+        .btn-alt:hover { background-color: #15294a; box-shadow: 0 6px 15px rgba(31, 59, 106, 0.3); }
+        .btn-secundario { background-color: transparent; border: 2px solid var(--azul); color: var(--azul); }
+        .btn-secundario:hover { background-color: var(--azul); color: var(--crema); }
+
+        .module-section { background: #fff; border-radius: var(--radius-lg); padding: 50px 40px; margin-bottom: 40px; box-shadow: var(--shadow-soft); border: 1px solid var(--gris-claro); }
+        .module-header { border-bottom: 2px solid var(--gris-claro); padding-bottom: 20px; margin-bottom: 30px; }
+        .module-header h2 { font-size: 1.8rem; margin-bottom: 5px; }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .card { background: var(--crema); border: 1px solid var(--gris-claro); border-radius: var(--radius-md); padding: 25px; transition: all 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; }
+        .card:hover { box-shadow: var(--shadow-hover); border-color: var(--sienna); }
+        
+        .card-icon { display: inline-block; width: 40px; height: 4px; background-color: var(--sienna); border-radius: 2px; margin-bottom: 15px; }
+
+        .video-container { border-radius: var(--radius-md); overflow: hidden; position: relative; background: var(--charcoal); aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+        .video-container img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; }
+        .play-btn { position: absolute; width: 50px; height: 50px; background: var(--sienna); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; }
+        .play-btn:hover { transform: scale(1.1); }
+        .play-btn::after { content: ''; border-style: solid; border-width: 8px 0 8px 12px; border-color: transparent transparent transparent var(--crema); margin-left: 4px; }
+        
+        audio { width: 100%; margin-top: 10px; height: 40px; }
+        .mapa-mental { width: 100%; border-radius: var(--radius-md); border: 1px solid var(--gris-claro); cursor: zoom-in; transition: transform 0.3s ease; }
+        .mapa-mental:hover { transform: scale(1.02); }
+        
+        .datos-tecnicos-container { margin-top: 40px; border-top: 1px solid var(--gris-claro); padding-top: 30px; }
+        .datos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 20px;}
+        .dato-tecnico { background: rgba(31, 59, 106, 0.03); border-left: 4px solid var(--azul); border-radius: 0 var(--radius-md) var(--radius-md) 0; overflow: hidden; transition: all 0.3s ease; cursor: pointer; }
+        .dato-header { padding: 15px; font-weight: 600; color: var(--azul); display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; }
+        .dato-content { max-height: 0; opacity: 0; padding: 0 15px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); font-size: 0.95rem; color: var(--charcoal); }
+        .dato-tecnico.active { background: rgba(31, 59, 106, 0.08); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .dato-tecnico.active .dato-content { max-height: 200px; opacity: 1; padding: 0 15px 15px 15px; }
+        .dato-icon { transition: transform 0.3s ease; }
+        .dato-tecnico.active .dato-icon { transform: rotate(180deg); }
+
+        /* Accordion for syllabus display */
+        .temario-toggle-box { margin-top: 25px; border: 1px dashed var(--azul); border-radius: var(--radius-md); padding: 15px; background: rgba(253, 253, 242, 0.5); }
+        .temario-details { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--gris-claro); }
+        .temario-details ul { padding-left: 20px; margin-bottom: 15px; }
+        .temario-details li { margin-bottom: 6px; font-size: 0.95rem; }
+
+        /* Modal Window Styles */
+        .modal {
+            display: none; 
+            position: fixed; z-index: 1000; 
+            left: 0; top: 0; width: 100%; height: 100%; 
+            overflow-y: auto; 
+            background-color: rgba(28, 30, 33, 0.8);
+            backdrop-filter: blur(4px);
+            align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background-color: var(--crema);
+            border-radius: var(--radius-lg);
+            border: 2px solid var(--azul);
+            max-width: 750px; width: 100%;
+            padding: 35px;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes modalFadeIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .close-modal {
+            position: absolute; top: 20px; right: 20px;
+            font-size: 2rem; font-weight: bold; color: var(--azul);
+            cursor: pointer; transition: color 0.2s;
+            line-height: 1;
+        }
+        .close-modal:hover { color: var(--sienna); }
+        .modal-body-content h3 { margin-bottom: 15px; border-bottom: 2px solid var(--sienna); padding-bottom: 5px; }
+        .modal-body-content h4 { margin-top: 20px; margin-bottom: 10px; font-size: 1.1rem; }
+        .modal-body-content p { margin-bottom: 12px; font-size: 0.95rem; }
+        .modal-body-content ul, .modal-body-content ol { padding-left: 20px; margin-bottom: 15px; font-size: 0.95rem; }
+        .modal-body-content li { margin-bottom: 6px; }
+
+        /* Toast notifications styling */
+        .toast {
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--azul); color: var(--crema);
+            padding: 15px 25px; border-radius: var(--radius-md);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 1050; display: none;
+            border-left: 5px solid var(--sienna);
+            animation: toastSlide 0.3s ease-out;
+        }
+        @keyframes toastSlide {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        footer { background: var(--azul); color: var(--crema); padding: 60px 20px 30px; text-align: center; border-top: 5px solid var(--sienna); margin-top: 80px; }
+        .footer-links a { color: var(--sienna); text-decoration: none; font-weight: 600; margin: 0 10px; }
+        
+        @media (max-width: 768px) { 
+            .grid-2 { grid-template-columns: 1fr; } 
+            .module-section { padding: 30px 20px; } 
+            .welcome-banner h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nav section keeping the requested jordan_logo.png path intact -->
+    <nav>
+        <div class="nav-content">
+            <div class="logo-container">
+                <img src="jordan_logo.png" alt="Logo Jordan Rangel" class="logo-placeholder" onerror="this.style.display='none';">
+            </div>
+            <a href="index.html" class="back-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Volver al Inicio
+            </a>
+        </div>
+    </nav>
+
+    <main class="container">
+        
+        <!-- Welcome Banner styled specifically as requested, pulling design direct from image mockup -->
+        <div class="welcome-banner">
+            <h1>Bienvenido al Campus Virtual</h1>
+            <p>
+                Aquí encontrarás el material didáctico, videos explicativos y retos interactivos organizados en cuatro unidades de aprendizaje. Recuerda documentar tus diagramas nodales y renders para tu portafolio final.
+            </p>
+        </div>
+
+        <!-- UNIDAD 1 -->
+        <section class="module-section" id="unidad-1">
+            <div class="module-header">
+                <h2>Unidad 1: Introducción al espacio de Shading</h2>
+                <p>Identificación y manipulación de los principales componentes del editor, su estructura nodal e interfaz gráfica.</p>
+            </div>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div>
+                        <span class="card-icon"></span>
+                        <h3>Clase Principal: Interfaz</h3>
+                        <p style="font-size: 0.9rem; color: var(--gris-apoyo); margin-bottom: 15px;">
+                            Anatomía del editor de nodos, visores en tiempo real, panel de propiedades y flujos de datos.
+                        </p>
+                        <div class="video-container">
+                            <img src="https://placehold.co/800x450/1C1E21/D2691E?text=Clase+1:+Fundamentos+de+Shading" alt="Miniatura Unidad 1">
+                            <div class="play-btn" onclick="playMockVideo('Clase 1: Introducción al Espacio de Shading')"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <h4 style="font-size: 0.95rem; margin-bottom: 5px;">Podcast Complementario</h4>
+                        <audio controls><source src="#" type="audio/mpeg"></audio>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div>
+                        <span class="card-icon"></span>
+                        <h3>Actividades de la Unidad</h3>
+                        <p style="margin-bottom: 15px; font-size: 0.95rem;">
+                            <strong>Prácticas y Retos:</strong> Recorrido guiado, diagrama nodal inicial, aplicación de materiales simples y personalización eficiente del entorno.
+                        </p>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <a href="recursos1.zip" class="btn">Recursos de la Unidad 1</a>
+                            <a href="act1.html" class="btn btn-alt">Actividad Interactiva 1</a>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <h4 style="margin-bottom: 8px; font-size: 0.95rem;">Mapa Mental: Estructura Básica</h4>
+                        <img src="https://placehold.co/600x300/FDFDF2/1F3B6A?text=Shader+->+Texture+->+Input+->+Output" alt="Mapa Mental Unidad 1" class="mapa-mental">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Temario dinámico de la unidad -->
+            <div class="temario-toggle-box">
+                <button class="btn btn-secundario" onclick="toggleTemario('temario-u1')" style="width: 100%;">📖 Desplegar Temario Completo de la Unidad 1</button>
+                <div id="temario-u1" class="temario-details">
+                    <h4>Contenidos Temáticos Detallados:</h4>
+                    <ul>
+                        <li><strong>1. Introducción al espacio de Shading:</strong> Propósito de los materiales procedurales en Blender 5.1; acceso y configuración inicial.</li>
+                        <li><strong>2. Componentes principales de la interfaz:</strong> Visor 3D en renderizado, Editor de Nodos, Panel de Propiedades, Barra de herramientas y distribución de pantallas para mejorar el flujo.</li>
+                        <li><strong>3. Estructura nodal y tipos de datos:</strong> Shader, Texture, Input y Output. Interacción entre nodos base: <em>Principled BSDF</em>, <em>Texture Coordinate</em>, <em>Noise Texture</em> y <em>ColorRamp</em>.</li>
+                        <li><strong>4. Creación y manipulación:</strong> Inserción y configuración desde cero, pruebas visuales sobre mallas base (esferas y cubos) y uso del editor de vistas previas.</li>
+                        <li><strong>5. Organización:</strong> Modificación, guardado y recuperación de espacios personalizados. Ordenación de redes nodales complejas.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="datos-tecnicos-container">
+                <h4 style="font-size: 1.1rem; margin-bottom: 10px; color: var(--azul);">Datos Técnicos de la Unidad</h4>
+                <div class="datos-grid">
+                    <div class="dato-tecnico" onclick="this.classList.toggle('active')">
+                        <div class="dato-header">
+                            <span>1. Fatiga Visual en Nodos</span>
+                            <svg class="dato-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="dato-content">
+                            <p>En la versión 5.1, mantener tus redes de nodos organizadas y colapsadas puede reducir drásticamente la fatiga visual en sesiones de modelado prolongadas.</p>
+                        </div>
+                    </div>
+                    <div class="dato-tecnico" onclick="this.classList.toggle('active')">
+                        <div class="dato-header">
+                            <span>2. Add-on Node Wrangler</span>
+                            <svg class="dato-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="dato-content">
+                            <p>Activar este add-on integrado te permite visualizar cualquier nodo directamente en el material usando el atajo <strong>Ctrl + Shift + Clic Izquierdo</strong>.</p>
+                        </div>
+                    </div>
+                    <div class="dato-tecnico" onclick="this.classList.toggle('active')">
+                        <div class="dato-header">
+                            <span>3. Reroute Nodes (Enrutamiento)</span>
+                            <svg class="dato-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="dato-content">
+                            <p>Presiona <strong>Shift</strong> y arrastra con <strong>clic derecho</strong> sobre cualquier conexión para crear un punto de ruteo, manteniendo tus líneas geométricas organizadas.</p>
+                        </div>
+                    </div>
+                    <div class="dato-tecnico" onclick="this.classList.toggle('active')">
+                        <div class="dato-header">
+                            <span>4. Auto-offset Inteligente</span>
+                            <svg class="dato-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="dato-content">
+                            <p>Blender desplaza automáticamente los nodos conectados hacia la derecha cuando insertas un nuevo nodo sobre una conexión existente.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- UNIDAD 2 -->
+        <section class="module-section" id="unidad-2">
+            <div class="module-header">
+                <h2>Unidad 2: Manipulación de datos en mallas</h2>
+                <p>Fundamentos matemáticos y de volumen para crear materiales dinámicos y adaptativos sin mapas de texturas externos.</p>
+            </div>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div>
+                        <span class="card-icon"></span>
+                        <h3>Clase Principal: Datos en Mallas</h3>
+                        <p style="font-size: 0.9rem; color: var(--gris-apoyo); margin-bottom: 15px;">
+                            Exploración de normales, coordenadas y modelación volumétrica avanzada mediante lógica de nodos vectoriales y matemáticos.
+                        </p>
+                        <div class="video-container">
+                            <img src="https://placehold.co/800x450/1C1E21/D2691E?text=Clase+2:+Datos+y+Vectores" alt="Miniatura Unidad 2">
+                            <div class="play-btn" onclick="playMockVideo('Clase 2: Datos en Mallas y Volumen Procedural')"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <h4 style="font-size: 0.95rem; margin-bottom: 5px;">Podcast Complementario</h4>
+                        <audio controls><source src="#" type="audio/mpeg"></audio>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div>
+                        <span class="card-icon"></span>
+                        <h3>Actividades de la Unidad</h3>
+                        <p style="margin-bottom: 15px; font-size: 0.95rem;">
+                            <strong>Prácticas y Retos:</strong> Análisis de atributos de geometría, construcción guiada de volumen procedural (humo/niebla) e integración reactiva con mallas.
+                        </p>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <a href="recursos2.zip" class="btn">Recursos de la Unidad 2</a>
+                            <a href="act2.html" class="btn btn-alt">Actividad Interactiva 2</a>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <h4 style="margin-bottom: 8px; font-size: 0.95rem;">Mapa Mental: Vectores y Coordenadas</h4>
+                        <img src="https://placehold.co/600x300/FDFDF2/1F3B6A?text=Coordenadas+Generated+vs+Object" alt="Mapa Mental Unidad 2" class="mapa-mental">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Temario dinámico de la unidad -->
+            <div class="temario-toggle-box">
+                <button class="btn btn-secundario" onclick="toggleTemario('temario-u2')" style="width: 100%;">📖 Desplegar Temario Completo de la Unidad 2</button>
+                <div id="temario-u2" class="temario-details">
+                    <h4>Contenidos Temáticos Detallados:</h4>
+                    <ul>
+                        <li><strong>1. Introducción a la estructura de datos:</strong> Vértices, aristas, caras, normales, posiciones y atributos personalizados utilizables en Shading.</li>
+                        <li><strong>2. Fundamentos de nodos avanzados:</strong> Nodos matemáticos, vectoriales (Vector Math), generadores de patrones (Voronoi, Noise, Musgrave, Wave) y de atributos de geometría.</li>
+                        <li><strong>3. Ensamblaje de texturas volumétricas:</strong> Construcción de niebla, humo, materiales translúcidos e integración de datos espaciales sin coordenadas de mapeo UV.</li>
+                        <li><strong>4. Evaluación y ajuste de rendimiento:</strong> Identificación de puntos críticos de cálculo matemático en el render, balanceando calidad visual con optimización de memoria.</li>
+                        <li><strong>5. Integración creativa:</strong> Respuestas de materiales a la deformación, cambios dimensionales o animaciones de los objetos (materiales reactivos).</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="datos-tecnicos-container">
+                <h4 style="font-size: 1.1rem; margin-bottom: 10px; color: var(--azul);">Datos Técnicos de la Unidad</h4>
+                <div class="datos-grid">
+                    <div class="dato-tecnico" onclick="this.classList.toggle('active')">
+                        <div class="dato-header">
+                            <span>1. Resolución Infinita</span>
+                            <svg class="dato-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="dato-content">
+                            <p>Los nodos como Wave y Musgrave están basados en algoritmos matemáticos fractales, lo que significa que poseen resolución infinita sin importar la proximidad de la cámara.</p>
+                        </div>
+                    </div>
+                    <div class="dato-tecnico" onclick="this.classList.toggle('active')">
+                        <div class="dato-header">
+                            <span>2. Coordenadas: Object vs Generated</span>
+                            <svg class="dato-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="dato-content">
+                            <p>Las coordenadas <strong>Object</strong> no se deforman si escalas tu geometría de manera no uniforme en Object Mode, haciéndolas ideales para texturas de volumen sólido estables.</p>
+                        </div>
+                    </div>
+                    <div class="dato-tecnico" onclick="this.classList.toggle('active')">
+                        <div class="dato-header">
+                            <span>3. Procesamiento Matemático</span>
+                            <svg class="dato-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="dato-content">
+                            <p>Mezclar valores en escala de grises es significativamente más ligero para el procesamiento de render usando un nodo <strong>Math (Add / Multiply)</strong> en lugar de un nodo <strong>Mix Color</strong>.</p>
+                        </div>
+                    </div>
+                    <div class="dato-tecnico" onclick="this.classList.toggle('active')">
+                        <div class="dato-header">
+                            <span>4. Vectores Negativos</span>
+                            <svg class="dato-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="dato-content">
+                            <p>Ten cuidado al usar coordenadas generadas sin remapear; los valores negativos pueden crear un efecto de espejo indeseado en el origen del modelo tridimensional.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- UNIDAD 3 -->
+        <section class="module-section" id="unidad-3">
+            <div class="module-header">
+                <h2>Unidad 3: Complejidad sin imágenes externas</h2>
+                <p>Configuración avanzada de relieves dinámicos, profundidad simulada mediante mapas matemáticos y canales de luz emisora.</p>
+            </div>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <div>
+                        <span class="card-icon"></span>
+                        <h3>Clase Principal: Relieve y Emisión</h3>
+                        <p style="font-size: 0.9rem; color: var(--gris-apoyo); margin-bottom: 15px;">
+                            Profundización en Bump mapping, desplazamiento real en Cycles, materiales emisores, refracción e índices de refracción (IOR) realistas.
+                        </p>
+                        <div class="video-container">
+                            <img src="https://placehold.co/800x450/1C1E21/D2691E?text=Clase+3:+Efectos+Fisicos" alt="Miniatura Unidad 3">
+                            <div class="play-btn" onclick="playMockVideo('Clase 3: Relieve, Desplazamiento y Emisión')"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <h4 style="font-size: 0.95rem; margin-bottom: 5px;">Podcast Complementario</h4>
+                        <audio controls><source src="#" type="audio/mpeg"></audio>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div>
+                        <span class="card-icon"></span>
+                        <h3>Actividades de la Unidad</h3>
+                        <p style="margin-bottom: 15px; font-size: 0.95rem;">
+                            <strong>Prácticas y Retos:</strong> Generación de texturas procedurales detalladas, material volumétrico parametrizado con panel de control y depuración de errores visuales.
+                        </p>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <a href="recursos3.zip" class="btn">Recursos de la Unidad 3</a>
+                            <a href="act3.html" class="btn btn-alt">Actividad Interactiva 3</a>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <h4 style="margin-bottom: 8px; font-size: 0.95rem;">Mapa Mental: Relieves de Superficie</h4>
+                        <img src="https://placehold.co/600x300/FDFDF2/1F3B6A?text=Bump+Mapping+vs+True+Displacement" alt="Mapa Mental Unidad 3" class="mapa-mental">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Temario dinámico de la unidad -->
+            <div class="temario-toggle-box">
+                <button class="btn btn-secundario" onclick="toggleTemario('temario-u3')" style="width: 100%;">📖 Desplegar Temario Completo de la Unidad 3</button>
+                <div id="temario-u3" class="temario-details">
+                    <h4>Contenidos Temáticos Detallados:</h4>
+                    <ul>
+                        <li><strong>1. Fundamentos de materiales sin bitmap:</strong> Ventajas computacionales y de almacenamiento al eliminar dependencias de archivos de texturas pesados.</li>
+                        <li><strong>2. Técnicas de combinación de texturas:</strong> Uso de operaciones lógicas matemáticas y gradientes para obtener patrones con detalles microscópicos.</li>
+                        <li><strong>3. Texturas volumétricas dinámicas:</strong> Nodos de volumen y ruido 3D aplicados al humo y la niebla, configurando controles personalizados en la interfaz.</li>
+                        <li><strong>4. Superficies realistas:</strong> Normales, mapas de rugosidad (Roughness) y desplazamiento dinámico interactuando con la iluminación de la escena.</li>
+                        <li><strong>5. Diagnóstico de errores:</strong> Corrección de artefactos visuales comunes, optimización de árboles de nodos redundantes y guías organizativas.</li>
+                        <li><strong>6. Interfaces amigables:</strong> Técnicas para exponer parámetros clave para facilitar el flujo de trabajo en equipos multidisciplinares de desarrollo.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="datos-tecnicos-container">
+                <h4 style="font-size: 1.1rem; margin-bottom: 10px; color: var(--azul);">Datos Técnicos de la Unidad</h4>
+                <div class="datos-grid">
+                    <div class="dato-tecnico" onclick="this.classList.toggle('active')">
+                        <div class="dato-header">
+                            <span>1. Memoria vs Almacenamiento</span>
+                            <svg class="dato-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="dato-content">
+                            <p>El True Displacement consume memoria RAM extra en tiempo de render, pero evita saturar tu disco duro con mapas EXR de 32-bits que suelen pesar gigabytes.</p>
+                        </div>
+                    </div>
+                    <div class="dato-tecnico" onclick="this.classList.toggle('active')">
+                        <div class="dato-header">
+                            <span>2. Lógica del Relieve (Bump)</span>
+                            <svg class="dato-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="dato-content">
+                            <p>El parámetro <strong>Distance</strong> en el nodo Bump representa metros en la escena. Si usas valores superiores a 1.0 en objetos pequeños, las sombras perderán coherencia física.</p>
+                        </div>
+                    </div>
+                    <div class="dato-tecnico" onclick="this.classList.toggle('active')">
+                        <div class="dato-header">
+                            <span>3. Activación del Bloom (Resplandor)</span>
+                            <svg class="dato-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="dato-content">
+                            <p>Para activar correctamente un efecto fotográfico de resplandor (Bloom), debes asignar al canal de Emisión un valor de fuerza superior a 1.0 para rebasar el rango dinámico estándar.</p>
+                        </div>
+                    </div>
+                    <div class="dato-tecnico" onclick="this.classList.toggle('active')">
+                        <div class="dato-header">
+                            <span>4. Índices de Refracción (IOR) Físicos</span>
+                            <svg class="dato-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="dato-content">
+                            <p>El agua posee un IOR de 1.33, el vidrio común de 1.45 y el diamante de 2.4. El uso de estos valores reales es crucial para alcanzar resultados hiperrealistas en tus materiales.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- UNIDAD 4 -->
+        <section class="module-section" id="unidad-4" style="border: 2px solid var(--sienna);">
+            <div class="module-header">
+                <h2>Unidad 4: Integración, optimización y aplicación práctica</h2>
+                <p>Estrategias de organización mediante Node Groups, baking de texturas procedurales para optimizar escenas complejas y desarrollo del proyecto integrador.</p>
+            </div>
+            
+            <div class="grid-2">
+                <div class="card" style="background: #fff; border-color: var(--sienna);">
+                    <div>
+                        <span class="card-icon" style="background-color: var(--sienna);"></span>
+                        <h3>Proyecto Final Integrador</h3>
+                        <p style="margin-bottom: 12px; font-size: 0.95rem;">
+                            <strong>Objetivo:</strong> Desarrollar un material físico procedural avanzado (metal, vidrio, tela, madera o arcilla) aplicado a un modelo de alta densidad.
+                        </p>
+                        <p style="font-size: 0.9rem; margin-bottom: 15px;">
+                            <strong>Requisitos de Entrega:</strong> Exportación de un PDF detallado que muestre la red completa de nodos organizada y el render final de alta definición.
+                        </p>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <button onclick="openActivityModal(4)" class="btn">Instrucciones del Proyecto Final</button>
+                            <button onclick="openEvaluationModal(4)" class="btn btn-alt">Criterios de Evaluación Final</button>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; border-top: 1px solid var(--gris-claro); padding-top: 15px;">
+                        <p style="font-size: 0.85rem; color: var(--charcoal); font-weight: 600;">
+                            📧 Envío de archivos: <a href="mailto:works.jordan@gmail.com" style="color: var(--sienna);">works.jordan@gmail.com</a>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div>
+                        <span class="card-icon"></span>
+                        <h3>Clase de Cierre</h3>
+                        <p style="font-size: 0.9rem; color: var(--gris-apoyo); margin-bottom: 15px;">
+                            Modularidad y reusabilidad con Node Groups, horneado (Baking) selectivo de canales, y optimización de render en escenas de producción masiva.
+                        </p>
+                        <div class="video-container">
+                            <img src="https://placehold.co/800x450/1C1E21/D2691E?text=Clase+4:+Optimizacion+y+Cierre" alt="Miniatura Unidad 4">
+                            <div class="play-btn" onclick="playMockVideo('Clase 4: Optimización en Producción')"></div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <h4 style="font-size: 0.95rem; margin-bottom: 5px;">Podcast Final de Cierre</h4>
+                        <audio controls><source src="#" type="audio/mpeg"></audio>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Temario dinámico de la unidad -->
+            <div class="temario-toggle-box">
+                <button class="btn btn-secundario" onclick="toggleTemario('temario-u4')" style="width: 100%;">📖 Desplegar Temario Completo de la Unidad 4</button>
+                <div id="temario-u4" class="temario-details">
+                    <h4>Contenidos Temáticos Detallados:</h4>
+                    <ul>
+                        <li><strong>1. Integración en modelos 3D complejos:</strong> Análisis de topología, geometría de alta densidad y asignación de materiales mediante máscaras, mapas UV y coordenadas generadas.</li>
+                        <li><strong>2. Optimización del flujo de trabajo:</strong> Organización avanzada mediante empaquetamiento en grupos de nodos (Node Groups), etiquetados y parametrización reutilizable.</li>
+                        <li><strong>3. Elaboración del proyecto integrador:</strong> Planificación, diseño, aplicación práctica sobre superficies complejas y métricas de rendimiento computacional.</li>
+                        <li><strong>4. Solución de problemas comunes en producción:</strong> Cuellos de botella en memoria, fallos de render, artefactos en texturas, baking selectivo para cinemáticas y uso de atajos avanzados de Blender 5.1.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="datos-tecnicos-container">
+                <h4 style="font-size: 1.1rem; margin-bottom: 10px; color: var(--azul);">Datos Técnicos de la Unidad</h4>
+                <div class="datos-grid">
+                    <div class="dato-tecnico" onclick="this.classList.toggle('active')">
+                        <div class="dato-header">
+                            <span>1. Modularidad con Node Groups</span>
+                            <svg class="dato-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="dato-content">
+                            <p>Seleccionar varios nodos y presionar <strong>Ctrl + G</strong> te permite empaquetarlos en un solo nodo personalizado, ideal para construir librerías propias transferibles.</p>
+                        </div>
+                    </div>
+                    <div class="dato-tecnico" onclick="this.classList.toggle('active')">
+                        <div class="dato-header">
+                            <span>2. Baking (Horneado) Selectivo</span>
+                            <svg class="dato-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="dato-content">
+                            <p>Hornear ramas complejas de ruido en texturas estáticas 2D es la clave definitiva; esta técnica puede acelerar hasta un 500% el tiempo necesario para completar el render final.</p>
+                        </div>
+                    </div>
+                    <div class="dato-tecnico" onclick="this.classList.toggle('active')">
+                        <div class="dato-header">
+                            <span>3. Panel Simplify en Producción</span>
+                            <svg class="dato-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="dato-content">
+                            <p>Cuando trabajas con un nivel excesivo de desplazamiento geométrico, debes activar el panel Simplify para limitar los niveles de subdivisión globales durante tu trabajo en el viewport.</p>
+                        </div>
+                    </div>
+                    <div class="dato-tecnico" onclick="this.classList.toggle('active')">
+                        <div class="dato-header">
+                            <span>4. Animación Continua con Drivers</span>
+                            <svg class="dato-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                        <div class="dato-content">
+                            <p>Escribir <strong>'#frame'</strong> en cualquier parámetro numérico (como la rotación de un Mapping Node) crea un driver automático que anima el valor perpetuamente en función de la línea de tiempo.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+
+    <!-- VENTANA MODAL PARA DESPLEGAR DETALLES COMPLETOS DE ACTIVIDADES -->
+    <div id="activity-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('activity-modal')">&times;</span>
+            <div id="activity-modal-body" class="modal-body-content">
+                <!-- Se inyecta dinámicamente con JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- VENTANA MODAL PARA DESPLEGAR DETALLES COMPLETOS DE EVALUACIONES -->
+    <div id="evaluation-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('evaluation-modal')">&times;</span>
+            <div id="evaluation-modal-body" class="modal-body-content">
+                <!-- Se inyecta dinámicamente con JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de retroalimentación -->
+    <div id="feedback-toast" class="toast">
+        <span id="toast-message">Notificación</span>
+    </div>
+
+    <footer>
+        <div class="container">
+            <img src="jordan_logo.png" alt="Logo Jordan Rangel" style="height: 60px; margin: 0 auto 20px; display: block; object-fit: contain;" onerror="this.style.display='none';">
+            
+            <div class="footer-links" style="margin-bottom: 30px;">
+                <a href="https://instagram.com/jordan_bmb" target="_blank">IG: @jordan_bmb</a> | 
+                <a href="mailto:works.jordan@gmail.com">works.jordan@gmail.com</a>
+            </div>
+            
+            <p style="font-size: 0.9rem; color: var(--gris-apoyo); border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; max-width: 600px; margin: 0 auto;">
+                Proyecto apoyado por el Sistema de Apoyos a la Creación y Proyectos Culturales 2025
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Definición de las Actividades Detalladas de la Unidad 4 (y compatibilidad para modals si fuera necesario)
+        const activitiesData = {
+            4: `
+                <h3>Unidad 4: Proyecto Final Integrador</h3>
+                <p>La culminación de tu trayecto educativo se enfoca en la optimización y la calidad profesional de producción:</p>
+                
+                <h4>Actividad 1: Aplicación práctica en modelo de alta densidad (2 horas)</h4>
+                <p><strong>Objetivo:</strong> Aplicar un sombreador de alta complejidad sobre una geometría real y verificar la consistencia del mapeo procedural.</p>
+                <ul>
+                    <li>Analizar la topología de un modelo complejo (vehículo, personaje o estructura arquitectónica).</li>
+                    <li>Asignar adecuadamente las zonas de materiales cuidando la escala y la interacción con la luz.</li>
+                </ul>
+
+                <h4>Actividad 2: Empaquetamiento y Node Groups (1.5 horas)</h4>
+                <p><strong>Objetivo:</strong> Crear herramientas reutilizables y compactar estructuras complejas.</p>
+                <ul>
+                    <li>Seleccionar secciones de tu árbol de Shading y presionar Ctrl + G para crear grupos con entradas expuestas claras y organizadas.</li>
+                </ul>
+
+                <h4>Actividad 3: Diagnóstico y optimización de recursos (2 horas)</h4>
+                <p><strong>Objetivo:</strong> Optimizar escenas pesadas mediante técnicas de horneado (Baking) selectivo y el uso de Simplify.</p>
+                <ul>
+                    <li>Hornear mapas de sombras y ruidos complejos en imágenes 2D de alta definición para eliminar cargas en animaciones de Cycles.</li>
+                </ul>
+
+                <h4>Actividad 4: Desarrollo e integración del Portafolio (6 horas)</h4>
+                <p><strong>Objetivo:</strong> Elaborar la escena final de tu material avanzado, renderizar en alta definición y compilar tu documento técnico de portafolio.</p>
+                <ul>
+                    <li><strong>Entregable Obligatorio:</strong> Un documento PDF que contenga:
+                        <ol>
+                            <li>Render final de alta calidad del modelo con el Shader procedural aplicado.</li>
+                            <li>Captura de pantalla organizada de la red de nodos, mostrando claramente la lógica de conexión.</li>
+                            <li>Captura del interior del Node Group de control expuesto.</li>
+                            <li>Breve ficha técnica detallando el tiempo de render, consumo de recursos e IOR utilizado.</li>
+                        </ol>
+                    </li>
+                </ul>
+            `
+        };
+
+        const evaluationsData = {
+            4: `
+                <h3>Unidad 4: Evaluación del Proyecto Final</h3>
+                <p>Evaluación final e integradora que mide la calidad global y la competencia técnica aplicada en el campo profesional:</p>
+                
+                <h4>Criterios de Evaluación del Portafolio Integrador (100%):</h4>
+                <ul>
+                    <li><strong>Calidad Visual y Coherencia (30%):</strong> Realismo físico del Shader (parámetros de IOR, rugosidad, relieve y color) adaptado consistentemente a la topología y geometría compleja del modelo 3D.</li>
+                    <li><strong>Complejidad y Estructura Nodal (30%):</strong> Uso avanzado de grupos de nodos (Node Groups) organizados, etiquetados, parametrizados y con un flujo lógico libre de redundancias.</li>
+                    <li><strong>Optimización y Eficiencia de Render (20%):</strong> Reducción de carga en el sistema mediante el horneado (Baking) selectivo de patrones complejos o configuración del Simplify.</li>
+                    <li><strong>Calidad de la Documentación (20%):</strong> Claridad, ortografía, capturas descriptivas detalladas del árbol de Shading y estructuración del portafolio en PDF.</li>
+                </ul>
+            `
+        };
+
+        // Función para abrir modal de Actividades
+        function openActivityModal(unitId) {
+            const modal = document.getElementById('activity-modal');
+            const container = document.getElementById('activity-modal-body');
+            container.innerHTML = activitiesData[unitId] || '<p>No hay información disponible para esta unidad.</p>';
+            modal.style.display = 'flex';
+        }
+
+        // Función para abrir modal de Evaluaciones
+        function openEvaluationModal(unitId) {
+            const modal = document.getElementById('evaluation-modal');
+            const container = document.getElementById('evaluation-modal-body');
+            container.innerHTML = evaluationsData[unitId] || '<p>No hay información disponible para esta unidad.</p>';
+            modal.style.display = 'flex';
+        }
+
+        // Función para cerrar modales
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Cerrar modales haciendo clic fuera del contenido
+        window.onclick = function(event) {
+            const actModal = document.getElementById('activity-modal');
+            const evalModal = document.getElementById('evaluation-modal');
+            if (event.target === actModal) {
+                actModal.style.display = 'none';
+            }
+            if (event.target === evalModal) {
+                evalModal.style.display = 'none';
+            }
+        }
+
+        // Alternar visualización del temario detallado de cada unidad
+        function toggleTemario(temarioId) {
+            const element = document.getElementById(temarioId);
+            if (element.style.display === 'block') {
+                element.style.display = 'none';
+            } else {
+                element.style.display = 'block';
+            }
+        }
+
+        // Simulación interactiva de reproducción de video en campus
+        function playMockVideo(videoTitle) {
+            const toast = document.getElementById('feedback-toast');
+            const message = document.getElementById('toast-message');
+            message.innerText = `🎥 Reproduciendo: ${videoTitle}... (Simulado)`;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
