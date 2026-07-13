@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campus Virtual: Blender 5.1 - Diseño de Materiales Procedurales</title>
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <title>Plataforma: Blender 5.1 - Diseño de Materiales Procedurales</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@700&family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
@@ -24,6 +24,10 @@
             --glass-bg: rgba(253, 253, 242, 0.95);
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Source Sans Pro', sans-serif; 
@@ -34,7 +38,66 @@
         }
         h1, h2, h3, h4 { font-family: 'Bitter', serif; color: var(--azul); font-weight: 700; }
 
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+        /* CONTENEDOR MÁS ANCHO Y OPTIMIZADO */
+        .container { 
+            max-width: 1200px; /* Más ancho para aprovechar las pantallas de computadoras */
+            margin: 0 auto; 
+            padding: 0 20px; 
+            position: relative;
+        }
+
+        /* MENÚ FLOTANTE IZQUIERDO AJUSTADO SIN SOBREPOSICIÓN */
+        .side-nav-floating {
+            display: none; /* Oculto por defecto para móviles y pantallas medianas */
+            flex-direction: column;
+            gap: 12px;
+            background: white;
+            padding: 20px 15px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-soft);
+            border-left: 4px solid var(--sienna);
+            z-index: 90;
+        }
+        
+        .side-nav-floating h5 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--gris-apoyo);
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+            border-bottom: 1px solid var(--gris-claro);
+            padding-bottom: 5px;
+        }
+
+        .side-nav-floating a {
+            color: var(--charcoal);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .side-nav-floating a:hover {
+            color: var(--sienna);
+            transform: translateX(3px);
+        }
+
+        /* POSICIONAMIENTO EN COMPUTADORAS */
+        @media (min-width: 1340px) {
+            .container {
+                margin-left: calc(50% - 490px); /* Desplaza ligeramente a la derecha para dejar espacio */
+            }
+            .side-nav-floating {
+                display: flex;
+                position: fixed;
+                left: calc(50% - 635px); /* Se alinea matemáticamente junto al contenido */
+                top: 200px;
+                width: 180px;
+            }
+        }
 
         nav { 
             background: var(--azul); 
@@ -44,7 +107,7 @@
             position: sticky; top: 0; z-index: 100; 
             box-shadow: 0 2px 10px rgba(0,0,0,0.2); 
         }
-        .nav-content { display: flex; justify-content: space-between; align-items: center; max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
         
         .logo-container { display: flex; align-items: center; height: 45px; }
         .logo-placeholder { max-height: 100%; width: auto; object-fit: contain; }
@@ -100,34 +163,69 @@
         .module-header h2 { font-size: 1.8rem; margin-bottom: 5px; }
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-.card { 
-    background: var(--crema); 
-    border: 1px solid var(--gris-claro); 
-    border-radius: var(--radius-md); 
-    padding: 25px; 
-    transition: all 0.3s ease; 
-    display: flex; 
-    flex-direction: column; 
-    justify-content: flex-start; /* Cambio aquí */
-    gap: 20px;                   /* Añadimos separación interna uniforme */
-}
+        
+        /* TARJETAS CON ALTURA FLUIDA (Corrige el gran espacio vacío vertical) */
+        .card { 
+            background: var(--crema); 
+            border: 1px solid var(--gris-claro); 
+            border-radius: var(--radius-md); 
+            padding: 25px; 
+            transition: all 0.3s ease; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-start; /* Alinea naturalmente todo hacia arriba */
+            gap: 20px;                   /* Distribución de espacio uniforme */
+        }
         .card:hover { box-shadow: var(--shadow-hover); border-color: var(--sienna); }
         
         .card-icon { display: inline-block; width: 40px; height: 4px; background-color: var(--sienna); border-radius: 2px; margin-bottom: 15px; }
 
-        .video-container { border-radius: var(--radius-md); overflow: hidden; position: relative; background: var(--charcoal); aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; margin-bottom: 15px; }
+        /* REPRODUCTOR DE VIDEO RESPONSIVO */
+        .video-container { 
+            border-radius: var(--radius-md); 
+            overflow: hidden; 
+            position: relative; 
+            background: var(--charcoal); 
+            aspect-ratio: 16/9; 
+            width: 100%;
+            display: block;
+            margin-bottom: 15px; 
+        }
+        .video-container iframe { 
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+        }
         .video-container img { width: 100%; height: 100%; object-fit: cover; opacity: 0.7; }
-        .play-btn { position: absolute; width: 50px; height: 50px; background: var(--sienna); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; }
-        .play-btn:hover { transform: scale(1.1); }
-        .play-btn::after { content: ''; border-style: solid; border-width: 8px 0 8px 12px; border-color: transparent transparent transparent var(--crema); margin-left: 4px; }
         
         audio { width: 100%; margin-top: 10px; height: 40px; }
         .mapa-mental { width: 100%; border-radius: var(--radius-md); border: 1px solid var(--gris-claro); cursor: zoom-in; transition: transform 0.3s ease; }
         .mapa-mental:hover { transform: scale(1.02); }
         
         .datos-tecnicos-container { margin-top: 40px; border-top: 1px solid var(--gris-claro); padding-top: 30px; }
-        .datos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 20px;}
-        .dato-tecnico { background: rgba(31, 59, 106, 0.03); border-left: 4px solid var(--azul); border-radius: 0 var(--radius-md) var(--radius-md) 0; overflow: hidden; transition: all 0.3s ease; cursor: pointer; }
+        
+        /* CORREGIDO: SECCIÓN DE DATOS TÉCNICOS EN UNA SOLA FILA SINFÍN */
+        .datos-grid { 
+            display: flex; 
+            flex-direction: row; 
+            flex-wrap: nowrap; /* Evita que salte de línea */
+            gap: 15px; 
+            margin-top: 20px;
+            overflow-x: auto; /* Scroll horizontal si es necesario */
+            padding-bottom: 10px; /* Espacio para barra de desplazamiento */
+            -webkit-overflow-scrolling: touch;
+        }
+        .dato-tecnico { 
+            background: rgba(31, 59, 106, 0.03); 
+            border-left: 4px solid var(--azul); 
+            border-radius: 0 var(--radius-md) var(--radius-md) 0; 
+            overflow: hidden; 
+            transition: all 0.3s ease; 
+            cursor: pointer; 
+            flex: 1;
+            min-width: 250px; /* Ancho seguro para que no se aplaste en pantallas chicas */
+        }
         .dato-header { padding: 15px; font-weight: 600; color: var(--azul); display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; }
         .dato-content { max-height: 0; opacity: 0; padding: 0 15px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); font-size: 0.95rem; color: var(--charcoal); }
         .dato-tecnico.active { background: rgba(31, 59, 106, 0.08); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
@@ -197,40 +295,51 @@
         footer { background: var(--azul); color: var(--crema); padding: 60px 20px 30px; text-align: center; border-top: 5px solid var(--sienna); margin-top: 80px; }
         .footer-links a { color: var(--sienna); text-decoration: none; font-weight: 600; margin: 0 10px; }
         
-        @media (max-width: 768px) { 
+        /* MEDIA QUERIES PARA RESPONSIVO (MÓVILES) */
+        @media (max-width: 992px) { 
             .grid-2 { grid-template-columns: 1fr; } 
             .module-section { padding: 30px 20px; } 
             .welcome-banner h1 { font-size: 1.8rem; }
         }
+
         /* Modal específico para agrandar imágenes */
-.img-fullscreen-modal {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-    align-items: center;
-    justify-content: center;
-    cursor: zoom-out;
-}
-.img-fullscreen-modal img {
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: contain;
-    border-radius: 8px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    animation: zoomEffect 0.2s ease;
-}
-@keyframes zoomEffect {
-    from { transform: scale(0.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
+        .img-fullscreen-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-out;
+        }
+        .img-fullscreen-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            animation: zoomEffect 0.2s ease;
+        }
+        @keyframes zoomEffect {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body>
+
+    <!-- MENÚ FLOTANTE LATERAL CON LINKS DIRECTOS A LAS UNIDADES -->
+    <div class="side-nav-floating">
+        <h5>Unidades</h5>
+        <a href="#unidad-1">📌 Unidad 1</a>
+        <a href="#unidad-2">📌 Unidad 2</a>
+        <a href="#unidad-3">📌 Unidad 3</a>
+        <a href="#unidad-4">📌 Unidad 4</a>
+    </div>
 
     <!-- Nav section keeping the requested jordan_logo.png path intact -->
     <nav>
@@ -270,9 +379,12 @@
                         <p style="font-size: 0.9rem; color: var(--gris-apoyo); margin-bottom: 15px;">
                             Anatomía del editor de nodos, visores en tiempo real, panel de propiedades y flujos de datos.
                         </p>
-                        <iframe width="560" height="315" src="https://www.youtube.com/embed/a2ipzOmUdMY?si=juPPjuPSZA0DoT2J" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                        <!-- CORREGIDO: Envuelto en .video-container para controlar el espaciado perfectamente -->
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/a2ipzOmUdMY?si=juPPjuPSZA0DoT2J" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                        </div>
                     </div>
-                    <div style="margin-top: 15px;">
+                    <div>
                         <h4 style="font-size: 0.95rem; margin-bottom: 5px;">Podcast Complementario</h4>
                         <audio controls><source src="podcast1.mp3" type="audio/mpeg"></audio>
                     </div>
@@ -292,9 +404,9 @@
                     </div>
 
                     <div style="margin-top: 20px;">
-    <h4 style="margin-bottom: 8px; font-size: 0.95rem;">Infografía del Espacio de Shading</h4>
-    <img src="infografia_1.png" alt="Infografía Unidad 1" class="mapa-mental" style="width: 100%; height: auto; object-fit: contain;">
-</div>
+                        <h4 style="margin-bottom: 8px; font-size: 0.95rem;">Infografía del Espacio de Shading</h4>
+                        <img src="infografia_1.png" alt="Infografía Unidad 1" class="mapa-mental" style="width: 100%; height: auto; object-fit: contain;">
+                    </div>
                 </div>
             </div>
 
@@ -371,9 +483,12 @@
                         <p style="font-size: 0.9rem; color: var(--gris-apoyo); margin-bottom: 15px;">
                             Exploración de normales, coordenadas y modelación volumétrica avanzada mediante lógica de nodos vectoriales y matemáticos.
                         </p>
-                       <iframe width="560" height="315" src="https://www.youtube.com/embed/E42OxbroToM?si=UEkCKEesBgfUtG3U" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                        <!-- CORREGIDO: Envuelto en .video-container para consistencia -->
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/E42OxbroToM?si=UEkCKEesBgfUtG3U" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                        </div>
                     </div>
-                    <div style="margin-top: 15px;">
+                    <div>
                         <h4 style="font-size: 0.95rem; margin-bottom: 5px;">Podcast Complementario</h4>
                         <audio controls><source src="podcast2.mp3" type="audio/mpeg"></audio>
                     </div>
@@ -392,9 +507,9 @@
                         </div>
                     </div>
                     <div style="margin-top: 20px;">
-    <h4 style="margin-bottom: 8px; font-size: 0.95rem;">Infografía del Espacio de Shading</h4>
-    <img src="infografia_2.png" alt="Infografía Unidad 2" class="mapa-mental" style="width: 100%; height: auto; object-fit: contain;">
-</div>
+                        <h4 style="margin-bottom: 8px; font-size: 0.95rem;">Infografía del Espacio de Shading</h4>
+                        <img src="infografia_2.png" alt="Infografía Unidad 2" class="mapa-mental" style="width: 100%; height: auto; object-fit: contain;">
+                    </div>
                 </div>
             </div>
 
@@ -471,11 +586,12 @@
                         <p style="font-size: 0.9rem; color: var(--gris-apoyo); margin-bottom: 15px;">
                             Profundización en Bump mapping, desplazamiento real en Cycles, materiales emisores, refracción e índices de refracción (IOR) realistas.
                         </p>
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/vBiT7jiYLf0?si=5juNOZFMzpS8VeOm" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-                        
+                        <!-- CORREGIDO: Envuelto en .video-container para consistencia -->
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/vBiT7jiYLf0?si=5juNOZFMzpS8VeOm" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                        </div>
                     </div>
-                    <div style="margin-top: 15px;">
+                    <div>
                         <h4 style="font-size: 0.95rem; margin-bottom: 5px;">Podcast Complementario</h4>
                         <audio controls><source src="podcast3.mp3" type="audio/mpeg"></audio>
                     </div>
@@ -494,9 +610,9 @@
                         </div>
                     </div>
                     <div style="margin-top: 20px;">
-    <h4 style="margin-bottom: 8px; font-size: 0.95rem;">Infografía del Espacio de Shading</h4>
-    <img src="infografia_3.png" alt="Infografía Unidad 3" class="mapa-mental" style="width: 100%; height: auto; object-fit: contain;">
-</div>
+                        <h4 style="margin-bottom: 8px; font-size: 0.95rem;">Infografía del Espacio de Shading</h4>
+                        <img src="infografia_3.png" alt="Infografía Unidad 3" class="mapa-mental" style="width: 100%; height: auto; object-fit: contain;">
+                    </div>
                 </div>
             </div>
 
@@ -596,9 +712,12 @@
                         <p style="font-size: 0.9rem; color: var(--gris-apoyo); margin-bottom: 15px;">
                             Modularidad y reusabilidad con Node Groups, horneado (Baking) selectivo de canales, y optimización de render en escenas de producción masiva.
                         </p>
-                        <iframe width="560" height="315" src="https://www.youtube.com/embed/51jdmRvyImk?si=bHr2kbhlXejhrnzA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                        <!-- CORREGIDO: Envuelto en .video-container para consistencia -->
+                        <div class="video-container">
+                            <iframe src="https://www.youtube.com/embed/51jdmRvyImk?si=bHr2kbhlXejhrnzA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                        </div>
                     </div>
-                    <div style="margin-top: 15px;">
+                    <div>
                         <h4 style="font-size: 0.95rem; margin-bottom: 5px;">Podcast Final de Cierre</h4>
                         <audio controls><source src="podcast4.mp3" type="audio/mpeg"></audio>
                     </div>
@@ -705,11 +824,11 @@
     </footer>
 
     <script>
-        // Definición de las Actividades Detalladas de la Unidad 4 (y compatibilidad para modals si fuera necesario)
+        // Definición de las Actividades Detalladas de la Unidad 4
         const activitiesData = {
             4: `
                 <h3>Unidad 4: Proyecto Final Integrador</h3>
-                <p>La culminación de tu trayecto educativo se enfoca en la optimización y la calidad profesional de producción:</p>
+                <p>La culmination de tu trayecto educativo se enfoca en la optimización y la calidad profesional de producción:</p>
                 
                 <h4>Actividad 1: Aplicación práctica en modelo de alta densidad (2 horas)</h4>
                 <p><strong>Objetivo:</strong> Aplicar un sombreador de alta complejidad sobre una geometría real y verificar la consistencia del mapeo procedural.</p>
@@ -813,19 +932,21 @@
                 toast.style.display = 'none';
             }, 3000);
         }
+
         // Lógica para agrandar las infografías al hacer clic
-document.querySelectorAll('.mapa-mental').forEach(img => {
-    img.addEventListener('click', function() {
-        const viewer = document.getElementById('image-viewer');
-        const viewerImg = document.getElementById('image-viewer-content');
-        viewerImg.src = this.src;
-        viewer.style.display = 'flex';
-    });
-});
+        document.querySelectorAll('.mapa-mental').forEach(img => {
+            img.addEventListener('click', function() {
+                const viewer = document.getElementById('image-viewer');
+                const viewerImg = document.getElementById('image-viewer-content');
+                viewerImg.src = this.src;
+                viewer.style.display = 'flex';
+            });
+        });
     </script>
+    
     <!-- Visor de imágenes en pantalla completa -->
-<div id="image-viewer" class="img-fullscreen-modal" onclick="this.style.display='none'">
-    <img id="image-viewer-content" src="" alt="Vista ampliada">
-</div>
+    <div id="image-viewer" class="img-fullscreen-modal" onclick="this.style.display='none'">
+        <img id="image-viewer-content" src="" alt="Vista ampliada">
+    </div>
 </body>
 </html>
